@@ -11,6 +11,12 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [msg, setMsg] = useState("");
+
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [fpStep, setFpStep] = useState(1);
+  const [fpOtp, setFpOtp] = useState("");
+  const [fpNewPassword, setFpNewPassword] = useState("");
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -51,6 +57,52 @@ function Login() {
     }
   };
 
+  const handleForgotPasswordStep1 = async () => {
+    setError("");
+    setMsg("");
+    if (!email) {
+      setError("Please enter your email to reset password.");
+      return;
+    }
+    try {
+      const resp = await apiRequest("/api/auth/forgot-password", {
+        method: "POST",
+        body: { email },
+      });
+      setMsg(resp.message || "OTP sent to email");
+      setFpStep(2);
+    } catch (err) {
+      setError(err?.message || "Failed to initiate password reset.");
+    }
+  };
+
+  const handleForgotPasswordStep2 = async () => {
+    setError("");
+    setMsg("");
+    if (!fpOtp || !fpNewPassword) {
+      setError("Please enter OTP and new password.");
+      return;
+    }
+    if (fpNewPassword.length < 8) {
+      setError("Password must be at least 8 characters.");
+      return;
+    }
+    try {
+      const resp = await apiRequest("/api/auth/reset-password", {
+        method: "POST",
+        body: { email, otp: fpOtp, newPassword: fpNewPassword },
+      });
+      setMsg(resp.message || "Password reset successful! You can now login.");
+      setIsForgotPassword(false);
+      setFpStep(1);
+      setFpOtp("");
+      setFpNewPassword("");
+      setPassword("");
+    } catch (err) {
+      setError(err?.message || "Password reset failed.");
+    }
+  };
+
   return (
     <div className="auth-container">
       <div className="auth-card">
@@ -62,48 +114,130 @@ function Login() {
         />
 
         <h2>Food Value Platform</h2>
-        <p className="subtitle">Smart Shelf-Life & Food Sharing</p>
+        <p className="subtitle">
+          {isForgotPassword ? "Reset your password" : "Smart Shelf-Life & Food Sharing"}
+        </p>
 
         {error && <p className="auth-error">{error}</p>}
+        {msg && <p style={{ color: "green", fontSize: "14px", marginBottom: "10px" }}>{msg}</p>}
 
-        <div className="input-group">
-          <FaEnvelope className="icon" />
-          <input
-            type="email"
-            placeholder="Email Address"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="off"
-          />
-        </div>
+        {!isForgotPassword ? (
+          <>
+            <div className="input-group">
+              <FaEnvelope className="icon" />
+              <input
+                type="email"
+                placeholder="Email Address"
+                name="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                autoComplete="off"
+              />
+            </div>
 
-        <div className="input-group">
-          <FaLock className="icon" />
-          <input
-            type="password"
-            placeholder="Password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="new-password"
-          />
-        </div>
+            <div className="input-group">
+              <FaLock className="icon" />
+              <input
+                type="password"
+                placeholder="Password"
+                name="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+            </div>
 
-        <button className="submit-btn" onClick={handleLogin}>
-          LOGIN TO YOUR ACCOUNT
-        </button>
+            <div style={{ display: "flex", justifyContent: "flex-end", width: "100%", marginBottom: "15px" }}>
+              <button
+                type="button"
+                className="auth-link-button"
+                style={{ fontSize: "13px" }}
+                onClick={() => {
+                  setIsForgotPassword(true);
+                  setError("");
+                  setMsg("");
+                }}
+              >
+                Forgot Password?
+              </button>
+            </div>
 
-        <p className="auth-switch-text">
-          Don&apos;t have an account?{" "}
-          <button
-            type="button"
-            className="auth-link-button"
-            onClick={() => navigate("/signup")}
-          >
-            Sign up
-          </button>
-        </p>
+            <button className="submit-btn" onClick={handleLogin}>
+              LOGIN TO YOUR ACCOUNT
+            </button>
+
+            <p className="auth-switch-text">
+              Don&apos;t have an account?{" "}
+              <button
+                type="button"
+                className="auth-link-button"
+                onClick={() => navigate("/signup")}
+              >
+                Sign up
+              </button>
+            </p>
+          </>
+        ) : (
+          <>
+            <div className="input-group">
+              <FaEnvelope className="icon" />
+              <input
+                type="email"
+                placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={fpStep === 2}
+              />
+            </div>
+
+            {fpStep === 1 ? (
+              <button className="submit-btn" onClick={handleForgotPasswordStep1}>
+                SEND OTP
+              </button>
+            ) : (
+              <>
+                <div className="input-group">
+                  <FaLock className="icon" />
+                  <input
+                    type="text"
+                    placeholder="Enter 6-digit OTP"
+                    value={fpOtp}
+                    maxLength="6"
+                    onChange={(e) => setFpOtp(e.target.value.replace(/\D/g, ""))}
+                  />
+                </div>
+                <div className="input-group">
+                  <FaLock className="icon" />
+                  <input
+                    type="password"
+                    placeholder="New Password"
+                    value={fpNewPassword}
+                    onChange={(e) => setFpNewPassword(e.target.value)}
+                  />
+                </div>
+                <button className="submit-btn" onClick={handleForgotPasswordStep2}>
+                  RESET PASSWORD
+                </button>
+              </>
+            )}
+
+            <p className="auth-switch-text" style={{ marginTop: "15px" }}>
+              Remember your password?{" "}
+              <button
+                type="button"
+                className="auth-link-button"
+                onClick={() => {
+                  setIsForgotPassword(false);
+                  setFpStep(1);
+                  setError("");
+                  setMsg("");
+                }}
+              >
+                Back to Login
+              </button>
+            </p>
+          </>
+        )}
       </div>
     </div>
   );
