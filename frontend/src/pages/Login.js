@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/auth.css";
-import { FaEnvelope, FaLock } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
 import { apiRequest, setAuth } from "../utils/api";
 import logo from "../assets/sanjeevani.jpeg";
 
@@ -18,7 +18,8 @@ function Login() {
   const [fpStep, setFpStep] = useState(1);
   const [fpOtp, setFpOtp] = useState("");
   const [fpNewPassword, setFpNewPassword] = useState("");
-
+  const [fpConfirmPassword, setFpConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleLogin = async () => {
@@ -93,17 +94,23 @@ function Login() {
       setError("Password must be at least 8 characters.");
       return;
     }
+    if (fpNewPassword !== fpConfirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
     setLoading(true);
     try {
       const resp = await apiRequest("/api/auth/reset-password", {
         method: "POST",
         body: { email, otp: fpOtp, newPassword: fpNewPassword },
       });
-      setMsg(resp.message || "Password reset successful! You can now login.");
+      setMsg(resp.message || "Password reset successfully.");
       setIsForgotPassword(false);
       setFpStep(1);
       setFpOtp("");
       setFpNewPassword("");
+      setFpConfirmPassword("");
+      setShowPassword(false);
       setPassword("");
     } catch (err) {
       setError(err?.message || "Password reset failed.");
@@ -140,27 +147,34 @@ function Login() {
                 name="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                autoComplete="off"
+                autoComplete="username"
               />
             </div>
 
-            <div className="input-group">
+            <div className="input-group" style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <FaLock className="icon" />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 name="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoComplete="new-password"
+                autoComplete="current-password"
+                style={{ width: "100%", paddingRight: "40px" }}
               />
+              <span
+                className="password-toggle-icon"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ position: "absolute", right: "15px", cursor: "pointer", color: "#888", display: "flex", alignItems: "center", height: "100%", top: 0 }}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </span>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", width: "100%", marginBottom: "15px" }}>
+            <div style={{ display: "flex", justifyContent: "flex-end", width: "100%", marginBottom: "15px", fontSize: "13px" }}>
               <button
                 type="button"
                 className="auth-link-button"
-                style={{ fontSize: "13px" }}
                 onClick={() => {
                   setIsForgotPassword(true);
                   setError("");
@@ -218,10 +232,26 @@ function Login() {
                 <div className="input-group">
                   <FaLock className="icon" />
                   <input
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     placeholder="New Password"
                     value={fpNewPassword}
                     onChange={(e) => setFpNewPassword(e.target.value)}
+                  />
+                  <span
+                    className="password-toggle-icon"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{ position: "absolute", right: "15px", cursor: "pointer", color: "#888" }}
+                  >
+                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                  </span>
+                </div>
+                <div className="input-group">
+                  <FaLock className="icon" />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Confirm New Password"
+                    value={fpConfirmPassword}
+                    onChange={(e) => setFpConfirmPassword(e.target.value)}
                   />
                 </div>
                 <button className="submit-btn" onClick={handleForgotPasswordStep2} disabled={loading}>

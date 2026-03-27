@@ -378,3 +378,9 @@ margin-left:5px;
     width:96px;
   }
 }
+
+/* Remove default browser eye icon for password fields */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
