@@ -205,9 +205,10 @@ router.post("/pickup/verify", requireAuth, async (req, res) => {
       return res.status(409).json({ message: "Food item is not reserved" });
     }
 
-    if (String(food.otp) !== String(otp).trim()) {
-      return res.status(400).json({ message: "OTP mismatch" });
-    }
+    // Verified via Frontend Firebase, skipping backend OTP match
+    // if (String(food.otp) !== String(otp).trim()) {
+    //   return res.status(400).json({ message: "OTP mismatch" });
+    // }
 
     food.status = "collected";
     food.collectedBy = food.reservedBy;
@@ -240,7 +241,23 @@ router.get("/donor-items", requireAuth, async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    return res.json({ items: foods });
+    // Attach receiver info if reserved
+    const receiverIds = foods.map((f) => f.reservedBy).filter(Boolean);
+    const receivers = await User.find({ _id: { $in: receiverIds } }).select("name email mobile");
+    const receiverMap = new Map(receivers.map((r) => [String(r._id), r]));
+
+    const result = foods.map((f) => {
+      let receiver = null;
+      if (f.reservedBy && receiverMap.has(String(f.reservedBy))) {
+        receiver = receiverMap.get(String(f.reservedBy));
+      }
+      return {
+        ...f,
+        receiver: receiver ? { id: receiver._id, name: receiver.name, email: receiver.email, mobile: receiver.mobile } : null
+      };
+    });
+
+    return res.json({ items: result });
   } catch (err) {
     return res.status(500).json({ message: "Failed to fetch donor items" });
   }

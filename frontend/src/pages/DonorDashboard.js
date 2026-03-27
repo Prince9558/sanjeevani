@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 import "../styles/donor-dashboard.css";
 import { apiRequest, getAuthToken, logout } from "../utils/api";
+import { auth } from "../firebase";
+import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 function DonorDashboard() {
   const navigate = useNavigate();
@@ -24,6 +26,8 @@ function DonorDashboard() {
   const [isLocating, setIsLocating] = useState(false);
   const [error, setError] = useState("");
   const [otpInputs, setOtpInputs] = useState({});
+  const [otpSentFor, setOtpSentFor] = useState(null);
+  const [confirmationResultObj, setConfirmationResultObj] = useState(null);
 
   useEffect(() => {
     if (!user || user.role !== "donor") {
@@ -137,10 +141,51 @@ function DonorDashboard() {
     }
   };
 
+  const handleSendOtp = async (item) => {
+    if (!item.receiver || !item.receiver.mobile) {
+      alert("Receiver mobile number not found. Cannot send OTP.");
+      return;
+    }
+    
+    const phoneNumber = String(item.receiver.mobile).startsWith("+") 
+      ? String(item.receiver.mobile) 
+      : `+91${String(item.receiver.mobile)}`;
+      
+    try {
+      if (!window.recaptchaVerifier) {
+        window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+          'size': 'invisible',
+        });
+      }
+      
+      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+      setConfirmationResultObj(confirmationResult);
+      setOtpSentFor(item._id);
+      alert(`OTP sent successfully to ${phoneNumber}!`);
+    } catch (err) {
+      console.error("Firebase SMS error:", err);
+      alert("Failed to send SMS via Firebase: " + err.message);
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = null;
+      }
+    }
+  };
+
   const handleConfirmOtp = async (foodId) => {
     const otp = otpInputs[foodId];
     if (!otp) return;
+    
+    if (foodId !== otpSentFor || !confirmationResultObj) {
+      alert("Please send the OTP first!");
+      return;
+    }
+
     try {
+      // 1. Verify with Firebase
+      await confirmationResultObj.confirm(otp);
+      
+      // 2. Inform backend to mark as collected
       await apiRequest("/api/food/pickup/verify", {
         method: "POST",
         token,
@@ -148,9 +193,12 @@ function DonorDashboard() {
       });
       alert("Donated Successfully.");
       setOtpInputs((prev) => ({ ...prev, [foodId]: "" }));
+      setOtpSentFor(null);
+      setConfirmationResultObj(null);
       loadItems();
     } catch (err) {
-      alert("Invalid OTP");
+      console.error(err);
+      alert("Invalid OTP or Failed to Verify");
     }
   };
 
@@ -195,6 +243,7 @@ function DonorDashboard() {
       </aside>
 
       <main className="dash-main">
+        <div id="recaptcha-container"></div>
         <header className="dash-header donor-main-header">
           <div>
             <h1>Donor dashboard</h1>
@@ -448,22 +497,37 @@ function DonorDashboard() {
                         {item.status === "reserved" && (
                           <div style={{ marginTop: "10px", padding: "10px", background: "#fff3e0", borderRadius: "8px", border: "1px solid #ffe0b2" }}>
                             <p style={{ margin: "0 0 8px 0", fontSize: "0.85rem", color: "#e65100", fontWeight: "bold" }}>OTP required (Receiver handover)</p>
-                            <div className="donor-otp-row">
-                              <input
-                                className="donor-otp-input"
-                                placeholder="Enter OTP"
-                                value={otpInputs[item._id] || ""}
-                                onChange={(e) =>
-                                  setOtpInputs({ ...otpInputs, [item._id]: e.target.value })
-                                }
-                              />
-                              <button
-                                className="donor-otp-btn"
-                                onClick={() => handleConfirmOtp(item._id)}
-                              >
-                                Verify
-                              </button>
-                            </div>
+                            
+                            {otpSentFor !== item._id ? (
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <span style={{ fontSize: "0.85rem", color: "#555" }}>
+                                  {item.receiver ? `To: ${item.receiver.mobile}` : "No receiver info"}
+                                </span>
+                                <button
+                                  className="donor-otp-btn"
+                                  onClick={() => handleSendOtp(item)}
+                                >
+                                  Send OTP
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="donor-otp-row">
+                                <input
+                                  className="donor-otp-input"
+                                  placeholder="Enter OTP"
+                                  value={otpInputs[item._id] || ""}
+                                  onChange={(e) =>
+                                    setOtpInputs({ ...otpInputs, [item._id]: e.target.value })
+                                  }
+                                />
+                                <button
+                                  className="donor-otp-btn"
+                                  onClick={() => handleConfirmOtp(item._id)}
+                                >
+                                  Verify
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

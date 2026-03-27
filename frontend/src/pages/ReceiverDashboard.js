@@ -14,7 +14,6 @@ function ReceiverDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [view, setView] = useState("overview"); // overview, collect, reserved, inventory
-  const [otpModal, setOtpModal] = useState(null);
 
   useEffect(() => {
     if (!user || user.role !== "receiver") {
@@ -55,19 +54,13 @@ function ReceiverDashboard() {
   const handleCollect = async (entry) => {
     setError("");
     try {
-      const data = await apiRequest("/api/food/reserve", {
+      await apiRequest("/api/food/reserve", {
         method: "POST",
         token,
         body: { foodId: entry.id },
       });
 
-      setOtpModal({
-        otp: data?.otp,
-        donor: data?.food?.donor,
-        address: data?.food?.address,
-        location: data?.food?.location,
-        name: data?.food?.name,
-      });
+      alert("Item successfully reserved! At pickup, the donor will send a verification SMS to your registered mobile number.");
 
       await loadData();
     } catch (err) {
@@ -165,7 +158,7 @@ function ReceiverDashboard() {
                 <ul style={{ lineHeight: "1.6", color: "#455a64", paddingLeft: "1.2rem" }}>
                   <li>Browse available surplus food shared by donors nearby under the <strong>Collect Items</strong> tab.</li>
                   <li>Click <strong>Collect</strong> to securely reserve the food block.</li>
-                  <li>Navigate to your <strong>Reserved Items</strong> tab to safely store your generated OTP. Present it to the donor during pickup.</li>
+                  <li>Navigate to the donor's address. At pickup, the donor will send an SMS OTP to your registered mobile number to verify the handover.</li>
                   <li>The product effortlessly moves to your <strong>My Inventory</strong> tab once the donation is verified successfully!</li>
                 </ul>
               </div>
@@ -273,7 +266,7 @@ function ReceiverDashboard() {
               <h2>{view === "reserved" ? "Reserved Items" : "My Inventory"}</h2>
               <p className="dash-subtitle">
                 {view === "reserved"
-                  ? "Items you have securely reserved. Share the corresponding OTP with the donor to complete pickup."
+                  ? "Items you have securely reserved. The donor will send an SMS OTP to your registered number during pickup."
                   : "Items you have successfully collected from donors."}
               </p>
 
@@ -353,9 +346,8 @@ function ReceiverDashboard() {
                                 {view === "reserved" ? "Pending Pickup" : "Collected Successfully"}
                               </span>
                               {view === "reserved" && (
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#f1f8e9", padding: "4px 10px", borderRadius: "20px", border: "1px solid #c5e1a5" }}>
-                                  <span style={{ fontSize: "0.75rem", color: "#1b5e20", fontWeight: 700, textTransform: "uppercase" }}>OTP:</span>
-                                  <strong style={{ fontSize: "1.05rem", color: "#2e7d32", letterSpacing: "1px" }}>{it.otp}</strong>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#fff8e1", padding: "4px 10px", borderRadius: "20px", border: "1px solid #ffecb3" }}>
+                                  <span style={{ fontSize: "0.75rem", color: "#f57f17", fontWeight: 700, textTransform: "uppercase" }}>AWAITING SMS AT PICKUP</span>
                                 </div>
                               )}
                             </div>
@@ -373,84 +365,6 @@ function ReceiverDashboard() {
         </section>
       </main>
 
-      {/* Legacy OTP Modal (Shows immediately after collection so they don't miss it) */}
-      {otpModal && (
-        <div
-          className="profile-backdrop"
-          style={{ background: "rgba(0,0,0,0.35)" }}
-          onClick={() => setOtpModal(null)}
-        >
-          <div
-            className="profile-modal"
-            onClick={(e) => e.stopPropagation()}
-            style={{ maxWidth: 560 }}
-          >
-            <div className="profile-modal-header">
-              <div>
-                <div className="profile-modal-title">Pickup OTP Generated</div>
-                <div className="profile-modal-sub">
-                  Share this OTP with the donor to receive{" "}
-                  <strong>{otpModal.name}</strong>. Don't worry, you can always find this OTP within your <strong>Reserved Items</strong> tab!
-                </div>
-              </div>
-              <button
-                type="button"
-                className="profile-close"
-                onClick={() => setOtpModal(null)}
-              >
-                ✕
-              </button>
-            </div>
-
-            <div style={{ display: "grid", gap: 10 }}>
-              <div
-                style={{
-                  fontSize: "1.6rem",
-                  fontWeight: 900,
-                  color: "#1b5e20",
-                  textAlign: "center",
-                  padding: "1rem",
-                  background: "#f1f8e9",
-                  borderRadius: "8px",
-                  border: "1px dashed #4caf50"
-                }}
-              >
-                {otpModal.otp}
-              </div>
-              <div className="dash-subtitle">
-                Donor: {otpModal.donor?.email || "Unknown"}
-              </div>
-              <div className="dash-subtitle">
-                Address: {otpModal.address || "-"}
-              </div>
-            </div>
-
-            <div className="profile-actions">
-              <button
-                type="button"
-                className="profile-btn ghost"
-                onClick={() => {
-                  try {
-                    navigator.clipboard?.writeText(String(otpModal.otp || ""));
-                    alert("OTP Copied to clipboard!");
-                  } catch {
-                    // ignore
-                  }
-                }}
-              >
-                Copy OTP
-              </button>
-              <button
-                type="button"
-                className="profile-btn"
-                onClick={() => setOtpModal(null)}
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
