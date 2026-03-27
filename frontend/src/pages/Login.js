@@ -20,6 +20,7 @@ function Login() {
   const [fpNewPassword, setFpNewPassword] = useState("");
   const [fpConfirmPassword, setFpConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleLogin = async () => {
@@ -111,6 +112,7 @@ function Login() {
       setFpNewPassword("");
       setFpConfirmPassword("");
       setShowPassword(false);
+      setShowConfirmPassword(false);
       setPassword("");
     } catch (err) {
       setError(err?.message || "Password reset failed.");
@@ -229,30 +231,41 @@ function Login() {
                     onChange={(e) => setFpOtp(e.target.value.replace(/\D/g, ""))}
                   />
                 </div>
-                <div className="input-group">
+                <div className="input-group" style={{ position: "relative", display: "flex", alignItems: "center" }}>
                   <FaLock className="icon" />
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="New Password"
                     value={fpNewPassword}
                     onChange={(e) => setFpNewPassword(e.target.value)}
+                    autoComplete="new-password"
+                    style={{ width: "100%", paddingRight: "40px" }}
                   />
                   <span
                     className="password-toggle-icon"
                     onClick={() => setShowPassword(!showPassword)}
-                    style={{ position: "absolute", right: "15px", cursor: "pointer", color: "#888" }}
+                    style={{ position: "absolute", right: "15px", cursor: "pointer", color: "#888", display: "flex", alignItems: "center", height: "100%", top: 0 }}
                   >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </span>
                 </div>
-                <div className="input-group">
+                <div className="input-group" style={{ position: "relative", display: "flex", alignItems: "center" }}>
                   <FaLock className="icon" />
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm New Password"
                     value={fpConfirmPassword}
                     onChange={(e) => setFpConfirmPassword(e.target.value)}
+                    autoComplete="new-password"
+                    style={{ width: "100%", paddingRight: "40px" }}
                   />
+                  <span
+                    className="password-toggle-icon"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    style={{ position: "absolute", right: "15px", cursor: "pointer", color: "#888", display: "flex", alignItems: "center", height: "100%", top: 0 }}
+                  >
+                    {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+                  </span>
                 </div>
                 <button className="submit-btn" onClick={handleForgotPasswordStep2} disabled={loading}>
                   {loading ? "RESETTING..." : "RESET PASSWORD"}
