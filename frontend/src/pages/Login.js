@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/auth.css";
 import { FaEnvelope, FaLock, FaEye, FaEyeSlash } from "react-icons/fa";
@@ -21,7 +21,18 @@ function Login() {
   const [fpConfirmPassword, setFpConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [timer, setTimer] = useState(0);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  useEffect(() => {
+    let interval;
+    if (timer > 0 && fpStep === 2) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer, fpStep]);
 
   const handleLogin = async () => {
     setError("");
@@ -77,6 +88,7 @@ function Login() {
       });
       setMsg(resp.message || "OTP sent to email");
       setFpStep(2);
+      setTimer(60);
     } catch (err) {
       setError(err?.message || "Failed to initiate password reset.");
     } finally {
@@ -108,6 +120,7 @@ function Login() {
       setMsg(resp.message || "Password reset successfully.");
       setIsForgotPassword(false);
       setFpStep(1);
+      setTimer(0);
       setFpOtp("");
       setFpNewPassword("");
       setFpConfirmPassword("");
@@ -270,6 +283,23 @@ function Login() {
                 <button className="submit-btn" onClick={handleForgotPasswordStep2} disabled={loading}>
                   {loading ? "RESETTING..." : "RESET PASSWORD"}
                 </button>
+                <div style={{ marginTop: "12px", fontSize: "14px", color: "#555", textAlign: "right", width: "100%" }}>
+                  {timer > 0 ? (
+                    <span>Resend OTP in <strong style={{ color: "#2e7d32" }}>{timer}s</strong></span>
+                  ) : (
+                    <span>
+                      Didn't receive code?{" "}
+                      <button
+                        type="button"
+                        className="auth-link-button"
+                        onClick={handleForgotPasswordStep1}
+                        disabled={loading}
+                      >
+                        {loading ? "Sending..." : "Resend"}
+                      </button>
+                    </span>
+                  )}
+                </div>
               </>
             )}
 
@@ -281,6 +311,7 @@ function Login() {
                 onClick={() => {
                   setIsForgotPassword(false);
                   setFpStep(1);
+                  setTimer(0);
                   setError("");
                   setMsg("");
                 }}
