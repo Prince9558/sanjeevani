@@ -7,7 +7,7 @@ export default function DonorRequests() {
   const [otpInputs, setOtpInputs] = useState({});
   const [items, setItems] = useState([]);
   const token = getAuthToken();
-  const user = JSON.parse(localStorage.getItem("currentUser"));
+  const user = JSON.parse(sessionStorage.getItem("currentUser"));
 
   const loadItems = useCallback(async () => {
     if (!token) return;

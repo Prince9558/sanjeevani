@@ -6,17 +6,17 @@ export const AUTH_TOKEN_KEY = "authToken";
 export const CURRENT_USER_KEY = "currentUser";
 
 export function getAuthToken() {
-  return localStorage.getItem(AUTH_TOKEN_KEY);
+  return sessionStorage.getItem(AUTH_TOKEN_KEY);
 }
 
 export function setAuth({ token, user }) {
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
-  localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+  sessionStorage.setItem(AUTH_TOKEN_KEY, token);
+  sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
 }
 
 export function logout() {
-  localStorage.removeItem(AUTH_TOKEN_KEY);
-  localStorage.removeItem(CURRENT_USER_KEY);
+  sessionStorage.removeItem(AUTH_TOKEN_KEY);
+  sessionStorage.removeItem(CURRENT_USER_KEY);
 }
 
 export async function apiRequest(path, { method = "GET", body, token } = {}) {

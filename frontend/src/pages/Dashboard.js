@@ -4,7 +4,7 @@ import "../styles/dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("currentUser"));
+  const user = JSON.parse(sessionStorage.getItem("currentUser"));
 
   useEffect(() => {
     if (!user) {
@@ -13,7 +13,7 @@ function Dashboard() {
   }, [user, navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem("currentUser");
+    sessionStorage.removeItem("currentUser");
     navigate("/");
   };
 

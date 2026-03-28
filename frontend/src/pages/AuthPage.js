@@ -40,7 +40,7 @@ function AuthPage() {
       return;
     }
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const users = JSON.parse(sessionStorage.getItem("users")) || [];
 
     const userExists = users.find((u) => u.email === email);
 
@@ -57,8 +57,8 @@ function AuthPage() {
 
     users.push(newUser);
 
-    localStorage.setItem("users", JSON.stringify(users));
-    localStorage.setItem("currentUser", JSON.stringify(newUser));
+    sessionStorage.setItem("users", JSON.stringify(users));
+    sessionStorage.setItem("currentUser", JSON.stringify(newUser));
 
     navigate("/dashboard");
   };
@@ -76,7 +76,7 @@ function AuthPage() {
       return;
     }
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const users = JSON.parse(sessionStorage.getItem("users")) || [];
 
     const user = users.find((u) => u.email === email);
 
@@ -90,7 +90,7 @@ function AuthPage() {
       return;
     }
 
-    localStorage.setItem("currentUser", JSON.stringify(user));
+    sessionStorage.setItem("currentUser", JSON.stringify(user));
 
     navigate("/dashboard");
   };

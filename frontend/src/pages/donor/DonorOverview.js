@@ -3,7 +3,7 @@ import DonorLayout from "./DonorLayout";
 import { getAuthToken, apiRequest } from "../../utils/api";
 
 export default function DonorOverview() {
-  const user = JSON.parse(localStorage.getItem("currentUser"));
+  const user = JSON.parse(sessionStorage.getItem("currentUser"));
 
   const [items, setItems] = useState([]);
 

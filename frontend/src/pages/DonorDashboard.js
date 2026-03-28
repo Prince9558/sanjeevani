@@ -3,12 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 import "../styles/donor-dashboard.css";
 import { apiRequest, getAuthToken, logout } from "../utils/api";
+import ProfilePanel from "../components/ProfilePanel";
 import { auth } from "../firebase";
 import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
 
 function DonorDashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("currentUser"));
+  const user = JSON.parse(sessionStorage.getItem("currentUser"));
   const token = getAuthToken();
 
   const [items, setItems] = useState([]);
@@ -157,7 +158,7 @@ function DonorDashboard() {
           'size': 'invisible',
         });
       }
-      
+
       const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
       setConfirmationResultObj(confirmationResult);
       setOtpSentFor(item._id);
@@ -244,20 +245,14 @@ function DonorDashboard() {
 
       <main className="dash-main">
         <div id="recaptcha-container"></div>
-        <header className="dash-header donor-main-header">
+        <header className="dash-header donor-main-header" style={{ alignItems: "flex-start" }}>
           <div>
             <h1>Donor dashboard</h1>
             <p className="dash-subtitle">
               Add food items, share your location and manage your inventory.
             </p>
           </div>
-          <div className="donor-profile-card">
-            <div className="donor-profile-title">Profile</div>
-            <div className="donor-profile-main">{user.name || user.email}</div>
-            {user.mobile && (
-              <div className="donor-profile-sub">Mobile: {user.mobile}</div>
-            )}
-          </div>
+          <ProfilePanel user={user} onLogout={handleLogout} />
         </header>
 
         <section className="donor-grid">

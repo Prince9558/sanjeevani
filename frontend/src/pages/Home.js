@@ -1,96 +1,136 @@
-import { Link } from "react-router-dom";
-import "../styles/home.css";
-import logo from "../assets/sanjeevani.jpeg";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import '../styles/home.css';
+import { FiHeart, FiGlobe, FiSmile, FiArrowRight, FiCheckCircle } from 'react-icons/fi';
+import logo from '../assets/sanjeevani.jpeg';
 
 function Home() {
   return (
-    <div className="home-hero">
-      <nav className="home-nav">
-        <div className="home-logo">
-          <img
-            // src="https://cdn-icons-png.flaticon.com/512/1046/1046784.png"
-            src={logo}
-            alt="Food Value Platform"
-          />
-          <span>Food Value Platform</span>
+    <div className="home-container">
+      {/* Navigation */}
+      <nav className="home-nav" style={{ padding: "16px 6%", minHeight: "70px" }}>
+        <div className="nav-brand">
+          <img src={logo} alt="Sanjeevani" style={{ width: "40px", height: "40px", borderRadius: "6px" }} />
+          <span className="brand-name" style={{ fontSize: "1.2rem", fontWeight: "800", color: "#2F855A" }}>Sanjeevani</span>
         </div>
-
-        <div className="home-nav-links">
-          <Link to="/login" className="nav-link">
-            Login
-          </Link>
-          <Link to="/signup" className="nav-link primary">
-            Sign Up
-          </Link>
+        <div className="nav-actions">
+          <Link to="/login" className="btn-text" style={{ fontSize: "0.95rem" }}>Login</Link>
+          <Link to="/signup" className="btn-solid" style={{ padding: "6px 16px", fontSize: "0.95rem" }}>Sign Up Free</Link>
         </div>
       </nav>
 
-      <main className="home-content">
-        <section className="home-text">
-          <h1>Reduce Food Waste, Feed More People.</h1>
-          <p>
-            A smart shelf-life and food sharing platform that connects donors,
-            receivers, and admins to make sure good food never goes to waste.
-          </p>
+      {/* Hero Section */}
+      <header className="hero-section" style={{ padding: "80px 6%" }}>
+        <main className="home-content">
+          <section className="home-text">
+            <h1>Don't Let Good Food Go To Waste. <br/>Share It With The World.</h1>
+            <p>
+              A smart shelf-life and food sharing platform that connects donors,
+              receivers, and admins to make sure good food never goes to waste.
+            </p>
 
-          <div className="home-cta">
-            <Link to="/signup" className="btn btn-primary">
-              Get Started
-            </Link>
-            <Link to="/login" className="btn btn-outline">
-              I already have an account
-            </Link>
+            <div className="cta-group" style={{ justifyContent: "center", marginTop: "32px", width: "100%" }}>
+              <Link to="/signup" className="btn-solid large">Get Started</Link>
+              <Link to="/login" className="btn-outline large">I have an account</Link>
+            </div>
+          </section>
+        </main>
+      </header>
+
+      {/* Why Donate Section */}
+      <section className="why-donate py-section">
+        <div className="section-title">
+          <h2>Why Donate Through Sanjeevani?</h2>
+          <p>Your single meal donation creates a chain of positive impacts on society and the planet.</p>
+        </div>
+        
+        <div className="grid-cards-3">
+          <div className="info-card">
+            <div className="icon-wrap green"><FiSmile /></div>
+            <h3>Feed The Hungry</h3>
+            <p>Millions of people go to bed hungry every day. Your surplus food can become someone's only assured meal for the day.</p>
           </div>
+          <div className="info-card">
+            <div className="icon-wrap green"><FiGlobe /></div>
+            <h3>Save Our Planet</h3>
+            <p>Food in landfills generates harmful greenhouse gases (Methane). Donating food directly reduces your carbon footprint.</p>
+          </div>
+          <div className="info-card">
+            <div className="icon-wrap green"><FiHeart /></div>
+            <h3>Spread Kindness</h3>
+            <p>Donation builds a compassionate community. It brings people together to share resources, happiness, and hope.</p>
+          </div>
+        </div>
+      </section>
 
-          <div className="home-stats">
-            <div>
-              <h3>Smart Matching</h3>
-              <p>Match surplus food with nearby receivers in real time.</p>
-            </div>
-            <div>
-              <h3>Shelf-Life Tracking</h3>
-              <p>Monitor expiry and prioritize items that need attention.</p>
-            </div>
-            <div>
-              <h3>Impact Insights</h3>
-              <p>See how much food you’ve saved from landfills.</p>
+      {/* How It Works Section */}
+      <section className="how-it-works bg-light py-section">
+        <div className="section-title">
+          <h2>How Sanjeevani Works?</h2>
+          <p>A simple, transparent, and fast process to prevent food wastage.</p>
+        </div>
+
+        <div className="steps-wrapper">
+          <div className="process-step">
+            <div className="step-number">1</div>
+            <div className="step-text">
+              <h3>List Your Surplus Food</h3>
+              <p>As a Donor (Restaurant, Event Organizer, Individual), you just log in and list the extra food you have, along with its quantity and expiry time.</p>
             </div>
           </div>
-        </section>
-
-        <section className="home-card">
-          <h2>Who are you?</h2>
-          <p>Select your role to continue:</p>
-
-          <div className="role-grid">
-            <div className="role-card">
-              <h3>Admin</h3>
-              <p>Monitor operations, users, and food flows across the platform.</p>
-            </div>
-            <div className="role-card">
-              <h3>Donor</h3>
-              <p>Donate surplus food and track its journey to receivers.</p>
-            </div>
-            <div className="role-card">
-              <h3>Receiver</h3>
-              <p>Discover available food items and request what you need.</p>
+          <div className="step-arrow"><FiArrowRight /></div>
+          
+          <div className="process-step">
+            <div className="step-number">2</div>
+            <div className="step-text">
+              <h3>Smart Notification</h3>
+              <p>Nearby NGOs, Volunteers, and Receivers get instantly notified about your available food on their dashboard.</p>
             </div>
           </div>
+          <div className="step-arrow"><FiArrowRight /></div>
 
-          <div className="home-card-actions">
-            <Link to="/signup" className="btn btn-primary full">
-              Create an account
-            </Link>
-            <span className="hint">
-              Already registered? <Link to="/login">Login here</Link>
-            </span>
+          <div className="process-step">
+            <div className="step-number">3</div>
+            <div className="step-text">
+              <h3>Pick Up & Distribute</h3>
+              <p>The Receiver claims the food, picks it up from your location, and distributes it to the needy before it spoils.</p>
+            </div>
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
 
-      <footer className="home-footer">
-        <span>© {new Date().getFullYear()} Food Value Platform</span>
-        <span>Smart Shelf-Life & Food Sharing</span>
+      {/* User Roles / Who Are We? */}
+      <section className="user-roles py-section">
+        <div className="section-title">
+          <h2>Who Can Join Sanjeevani?</h2>
+          <p>Everyone has a part to play in reducing food waste.</p>
+        </div>
+
+        <div className="grid-cards-3 roles-grid">
+          <div className="role-box">
+            <h4><FiCheckCircle className="check-icon"/> Food Donors</h4>
+            <p>If you host parties, run a hotel, or have excess food at home, become a donor. Help us turn your surplus into smiles.</p>
+          </div>
+          <div className="role-box">
+            <h4><FiCheckCircle className="check-icon"/> Receivers (NGOs)</h4>
+            <p>If you run a shelter, orphanage, or help the needy on streets, register as a receiver to claim fresh food daily.</p>
+          </div>
+          <div className="role-box">
+            <h4><FiCheckCircle className="check-icon"/> Platform Admins</h4>
+            <p>Admins oversee the entire process, ensuring quality matching and tracking exactly how much food is saved globally.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to action & Footer */}
+      <footer className="simple-footer">
+        <div className="footer-cta">
+          <h2>Ready To Make a Difference?</h2>
+          <Link to="/signup" className="btn-solid">Join Sanjeevani Now</Link>
+        </div>
+        <div className="footer-copyright">
+          <p style={{ color: "#ffffff", fontSize: "1.05rem", margin: 0 }}>&copy; {new Date().getFullYear()} Sanjeevani Food Donation Platform. Designed to save food and lives.</p>
+        </div>
       </footer>
     </div>
   );

@@ -350,13 +350,58 @@
   }
 }
 
-@media (max-width: 640px) {
-  .donor-main-header {
+@media (max-width: 768px) {
+  .donor-item {
     flex-direction: column;
   }
-
+  .donor-item-image {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px 12px 0 0;
+  }
+  .donor-barcode {
+    border-left: none;
+    border-top: 1px dashed #cfd8dc;
+    padding: 16px;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .donor-barcode img {
+    width: 80px;
+    height: 80px;
+  }
+  .donor-barcode-code {
+    text-align: right;
+  }
+  
   .donor-form-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .donor-main-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .donor-otp-row {
+    flex-direction: column;
+  }
+  .donor-otp-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .donor-item-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .donor-barcode {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .donor-barcode-code {
+    text-align: center;
   }
 }
 

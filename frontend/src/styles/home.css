@@ -1,271 +1,327 @@
-body {
-  margin: 0;
-  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+/* home.css - Simple & Clean Design */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.home-container {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  color: #2D3748;
+  line-height: 1.6;
+  background-color: #ffffff;
 }
 
-.home-hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: radial-gradient(circle at top left, #c8f7c5 0, #e8f5e9 35%, #f5fff5 70%);
-  color: #1b5e20;
+.home-container a {
+  text-decoration: none;
 }
 
+/* Typography & Layout Utility Constants */
+h1, h2, h3, h4 {
+  color: #1A202C;
+  margin-top: 0;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+p {
+  color: #4A5568;
+  font-size: 1rem;
+}
+
+.py-section {
+  padding: 80px 6%;
+}
+
+.bg-light {
+  background-color: #F7FAFC; /* Very light gray/blue */
+}
+
+/* Nav Bar */
 .home-nav {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding: 20px 6vw;
-}
-
-.home-logo {
-  display: flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 600;
-  color: #1b5e20;
+  padding: 10px 6%; /* Super shrunk header */
+  background-color: white;
+  border-bottom: 1px solid #E2E8F0;
 }
 
-.home-logo img {
-  width: 40px;
-  height: 40px;
-}
-
-.home-nav-links {
+.nav-brand {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.nav-link {
-  text-decoration: none;
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  font-size: 14px;
-  color: #1b5e20;
-  transition: all 0.2s ease;
+.logo {
+  width: 35px; /* Shrunk logo */
+  height: 35px;
+  border-radius: 8px;
 }
 
-.nav-link:hover {
-  background-color: rgba(76, 175, 80, 0.08);
+.brand-name {
+  font-size: 1.25rem; /* Shrunk font */
+  font-weight: 800;
+  color: #2F855A; /* Deep Green */
 }
 
-.nav-link.primary {
-  background: linear-gradient(120deg, #43a047, #8bc34a);
-  color: #ffffff;
-}
+/* Buttons */
+.nav-actions { display: flex; gap: 16px; align-items: center; }
 
-.nav-link.primary:hover {
-  filter: brightness(0.95);
-}
-
-.home-content {
-  flex: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-  gap: 40px;
-  align-items: center;
-  padding: 40px 8vw 32px;
-}
-
-.home-text h1 {
-  font-size: clamp(2.4rem, 3vw + 1rem, 3.4rem);
-  margin-bottom: 16px;
-  color: #1b5e20;
-}
-
-.home-text p {
-  max-width: 520px;
-  font-size: 0.98rem;
-  color: #33691e;
-  line-height: 1.6;
-}
-
-.home-cta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin: 24px 0 18px;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 20px;
-  border-radius: 999px;
-  font-size: 0.9rem;
+.btn-text {
+  color: #4A5568;
   font-weight: 600;
-  text-decoration: none;
-  cursor: pointer;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
+  padding: 6px 12px;
+  transition: color 0.2s;
 }
 
-.btn-primary {
-  background: linear-gradient(120deg, #43a047, #8bc34a);
-  color: #ffffff;
+.btn-text:hover { color: #2F855A; }
+
+.btn-solid {
+  background-color: #38A169; /* Primary Green */
+  color: white;
+  font-weight: 600;
+  padding: 8px 20px;
+  border-radius: 6px;
+  transition: background 0.3s;
+  display: inline-block;
 }
 
-.btn-primary:hover {
-  filter: brightness(0.95);
-}
+.btn-solid:hover { background-color: #2F855A; color: white; }
+
+.btn-solid.large { padding: 12px 28px; font-size: 1.05rem; }
 
 .btn-outline {
   background-color: transparent;
-  border-color: rgba(56, 142, 60, 0.35);
-  color: #1b5e20;
+  color: #38A169;
+  border: 2px solid #38A169;
+  font-weight: 600;
+  padding: 10px 26px;
+  border-radius: 6px;
+  transition: all 0.3s;
+  display: inline-block;
 }
 
 .btn-outline:hover {
-  background-color: rgba(76, 175, 80, 0.06);
+  background-color: #F0FFF4;
 }
 
-.home-stats {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.home-stats div {
-  background-color: rgba(255, 255, 255, 0.9);
-  border-radius: 14px;
-  padding: 10px 12px;
-  box-shadow: 0 6px 20px rgba(56, 142, 60, 0.08);
-}
-
-.home-stats h3 {
-  font-size: 0.9rem;
-  margin-bottom: 4px;
-}
-
-.home-stats p {
-  font-size: 0.8rem;
-  color: #558b2f;
-}
-
-.home-card {
-  background-color: #ffffff;
-  border-radius: 24px;
-  padding: 26px 24px 22px;
-  box-shadow: 0 20px 60px rgba(56, 142, 60, 0.22);
-}
-
-.home-card h2 {
-  margin: 0 0 6px;
-  font-size: 1.4rem;
-  color: #2e7d32;
-}
-
-.home-card p {
-  margin: 0 0 18px;
-  font-size: 0.9rem;
-  color: #616161;
-}
-
-.role-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.role-card {
-  border-radius: 14px;
-  padding: 12px 10px;
-  border: 1px solid #e0f2f1;
-  background: linear-gradient(145deg, #f9fff9, #e8f5e9);
-  text-align: left;
-}
-
-.role-card h3 {
-  margin-bottom: 6px;
-  font-size: 0.95rem;
-  color: #1b5e20;
-}
-
-.role-card p {
-  margin: 0;
-  font-size: 0.8rem;
-  color: #558b2f;
-}
-
-.home-card-actions .btn.full {
-  width: 100%;
-}
-
-.home-card-actions .hint {
-  display: block;
-  margin-top: 10px;
-  font-size: 0.82rem;
-  color: #616161;
-}
-
-.home-card-actions .hint a {
-  color: #2e7d32;
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.home-card-actions .hint a:hover {
-  text-decoration: underline;
-}
-
-.home-footer {
+/* Hero Section */
+.hero-section {
+  padding: 80px 6% 100px;
+  background: linear-gradient(180deg, #F0FFF4 0%, #FFFFFF 100%);
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 12px 6vw 16px;
-  font-size: 0.8rem;
-  color: #558b2f;
-  border-top: 1px solid rgba(129, 199, 132, 0.35);
-  background: linear-gradient(to right, #f1f8e9, #f9fff6);
 }
 
-.home-footer span:last-child {
-  font-weight: 500;
+.home-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-@media (max-width: 900px) {
-  .home-content {
-    grid-template-columns: minmax(0, 1fr);
-    padding-top: 20px;
-    padding-bottom: 20px;
-  }
-
-  .home-card {
-    order: -1;
-  }
+/* Specific text left alignment since hero is not centered anymore */
+.home-text {
+  text-align: center;
 }
 
-@media (max-width: 640px) {
-  .home-nav {
-    padding-inline: 16px;
-  }
-
-  .home-nav-links {
-    gap: 6px;
-  }
-
-  .home-content {
-    padding-inline: 16px;
-  }
-
-  .home-stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .role-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .home-footer {
-    flex-direction: column;
-    gap: 4px;
-    text-align: center;
-  }
+.home-text h1 {
+  font-size: clamp(2.2rem, 4vw, 3.5rem);
+  letter-spacing: -1px;
+  margin-bottom: 24px;
+  color: #1A202C;
 }
 
+.home-text p {
+  font-size: 1.15rem;
+  color: #4A5568;
+  margin-bottom: 30px;
+  max-width: 600px;
+  margin-inline: auto;
+}
+
+.cta-group {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Section Shared Titles */
+.section-title {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.section-title h2 {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+  color: #2F855A; /* Thematic Green */
+}
+
+.section-title p {
+  font-size: 1.15rem;
+  color: #718096;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Grid Components */
+.grid-cards-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.info-card {
+  background-color: white;
+  padding: 40px 30px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(0,0,0,0.05);
+}
+
+.icon-wrap.green {
+  width: 60px;
+  height: 60px;
+  background-color: #C6F6D5;
+  color: #2F855A;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin: 0 auto 24px;
+}
+
+.info-card h3 {
+  font-size: 1.4rem;
+  margin-bottom: 16px;
+}
+
+.info-card p {
+  font-size: 1.05rem;
+}
+
+/* How It Works (Steps List) */
+.steps-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.process-step {
+  display: flex;
+  align-items: flex-start;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid #E2E8F0;
+}
+
+.step-number {
+  background-color: #38A169;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: 25px;
+}
+
+.step-text h3 {
+  margin-bottom: 10px;
+  font-size: 1.3rem;
+  color: #2F855A;
+}
+
+.step-text p {
+  margin: 0;
+}
+
+.step-arrow {
+  text-align: center;
+  font-size: 30px;
+  color: #CBD5E0;
+  transform: rotate(90deg);
+  margin: 10px 0;
+}
+
+/* User Roles Grid */
+.roles-grid {
+  max-width: 1000px;
+}
+
+.role-box {
+  background: #F0FFF4;
+  padding: 30px;
+  border-radius: 12px;
+  border-top: 4px solid #38A169;
+}
+
+.role-box h4 {
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #2D3748;
+  margin-bottom: 12px;
+}
+
+.check-icon {
+  color: #38A169;
+}
+
+/* Footer & Final CTA */
+.simple-footer {
+  background-color: #0b703e; /* Cleaner green background */
+  color: white;
+  text-align: center;
+  padding: 15px 6% 15px;
+}
+
+.footer-cta {
+  padding-bottom: 50px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  margin-bottom: 30px;
+}
+
+.footer-cta h2 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 25px;
+}
+
+.footer-copyright {
+  color: #ffffff;
+  font-size: 0.95rem;
+}
+
+/* Mobile Media Queries */
+@media (max-width: 768px) {
+  .hero-content h1 { font-size: 2rem; }
+  .hero-content p { font-size: 1.1rem; }
+  .cta-group { flex-direction: column; width: 100%; }
+  .btn-solid.large, .btn-outline.large { width: 100%; text-align: center; }
+  
+  .process-step { flex-direction: column; text-align: center; }
+  .step-number { margin: 0 auto 15px; }
+  
+  .nav-actions { display: none; }
+}

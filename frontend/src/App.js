@@ -11,6 +11,17 @@ import ReceiverDashboard from "./pages/ReceiverDashboard";
 import DonorDashboard from "./pages/DonorDashboard";
 
 function App() {
+  React.useEffect(() => {
+    const handleStorageChange = (e) => {
+      // Sync login state properly if another tab logs out, but don't force logout otherwise.
+      if (e.key === "authToken" && !e.newValue) {
+        window.location.href = "/";
+      }
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   return (
     <Router>
       <Routes>

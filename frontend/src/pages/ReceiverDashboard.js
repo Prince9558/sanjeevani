@@ -6,7 +6,7 @@ import { apiRequest, getAuthToken, logout } from "../utils/api";
 
 function ReceiverDashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("currentUser"));
+  const user = JSON.parse(sessionStorage.getItem("currentUser"));
   const token = getAuthToken();
 
   const [items, setItems] = useState([]); // Inventory & Reserved
@@ -179,7 +179,7 @@ function ReceiverDashboard() {
                     padding: 0,
                     margin: 0,
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill,minmax(280px,1fr))",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))",
                     gap: 12,
                   }}
                 >
@@ -324,7 +324,7 @@ function ReceiverDashboard() {
                           />
                         )}
                         <div>
-                          <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
                             <div>
                               <div style={{ fontWeight: 600 }}>{it.name}</div>
                               <div className="dash-subtitle">

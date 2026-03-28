@@ -6,7 +6,7 @@ import { apiRequest, getAuthToken, logout } from "../utils/api";
 
 function AdminDashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("currentUser"));
+  const user = JSON.parse(sessionStorage.getItem("currentUser"));
   const token = getAuthToken();
 
   const [view, setView] = useState("overview");
@@ -341,7 +341,7 @@ function AdminDashboard() {
                     margin: 0,
                     display: "grid",
                     gridTemplateColumns:
-                      "repeat(auto-fill,minmax(280px,1fr))",
+                      "repeat(auto-fill, minmax(min(100%, 280px), 1fr))",
                     gap: 12,
                   }}
                 >
@@ -420,7 +420,7 @@ function AdminDashboard() {
               <div className="dash-card" style={{ gridColumn: "1 / -1", padding: "2rem" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
                   <h2 style={{ fontSize: "1.6rem", margin: 0 }}>Database Reports & Logs</h2>
-                  <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+                  <div style={{ display: "flex", gap: "1rem", alignItems: "center", flexWrap: "wrap" }}>
                     <select 
                       value={reportType} 
                       onChange={(e) => setReportType(e.target.value)}
@@ -484,8 +484,8 @@ function AdminDashboard() {
                 </div>
 
                 {reportTotalItems > 0 && (
-                  <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", padding: "16px 8px 0px", fontSize: "0.85rem", color: "#555" }}>
-                    <div style={{ marginRight: "32px", display: "flex", alignItems: "center" }}>
+                  <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", flexWrap: "wrap", gap: "16px", padding: "16px 8px 0px", fontSize: "0.85rem", color: "#555" }}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
                       <span>Items per page:</span>
                       <select 
                         value={reportItemsPerPage} 

@@ -5,7 +5,7 @@ import "../../styles/donor-dashboard.css";
 import { apiRequest, getAuthToken } from "../../utils/api";
 
 export default function DonorInventory() {
-  const user = JSON.parse(localStorage.getItem("currentUser"));
+  const user = JSON.parse(sessionStorage.getItem("currentUser"));
   const token = getAuthToken();
   const navigate = useNavigate();
   const [items, setItems] = useState([]);

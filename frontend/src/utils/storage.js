@@ -1,6 +1,6 @@
 export function readJson(key, fallback) {
   try {
-    const raw = localStorage.getItem(key);
+    const raw = sessionStorage.getItem(key);
     if (!raw) return fallback;
     return JSON.parse(raw);
   } catch {
@@ -9,7 +9,7 @@ export function readJson(key, fallback) {
 }
 
 export function writeJson(key, value) {
-  localStorage.setItem(key, JSON.stringify(value));
+  sessionStorage.setItem(key, JSON.stringify(value));
 }
 
 export function safeArray(value) {
