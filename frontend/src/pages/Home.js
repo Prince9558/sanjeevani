@@ -23,7 +23,7 @@ function Home() {
       <header className="hero-section" style={{ padding: "80px 6%" }}>
         <main className="home-content">
           <section className="home-text">
-            <h1>Don't Let Good Food Go To Waste. <br/>Share It With The World.</h1>
+            <h1>Don't Let Good Food Go To Waste. <br />Share It With The World.</h1>
             <p>
               A smart shelf-life and food sharing platform that connects donors,
               receivers, and admins to make sure good food never goes to waste.
@@ -43,7 +43,7 @@ function Home() {
           <h2>Why Donate Through Sanjeevani?</h2>
           <p>Your single meal donation creates a chain of positive impacts on society and the planet.</p>
         </div>
-        
+
         <div className="grid-cards-3">
           <div className="info-card">
             <div className="icon-wrap green"><FiSmile /></div>
@@ -64,37 +64,27 @@ function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="how-it-works bg-light py-section">
+      <section className="how-it-works py-section">
         <div className="section-title">
           <h2>How Sanjeevani Works?</h2>
           <p>A simple, transparent, and fast process to prevent food wastage.</p>
         </div>
 
-        <div className="steps-wrapper">
-          <div className="process-step">
-            <div className="step-number">1</div>
-            <div className="step-text">
-              <h3>List Your Surplus Food</h3>
-              <p>As a Donor (Restaurant, Event Organizer, Individual), you just log in and list the extra food you have, along with its quantity and expiry time.</p>
-            </div>
+        <div className="grid-cards-3">
+          <div className="info-card">
+            <div className="icon-wrap green"><span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>1</span></div>
+            <h3>List Your Surplus Food</h3>
+            <p>As a Donor (Restaurant, Event Organizer, Individual), you just log in and list the extra food you have, along with its quantity and expiry time.</p>
           </div>
-          <div className="step-arrow"><FiArrowRight /></div>
-          
-          <div className="process-step">
-            <div className="step-number">2</div>
-            <div className="step-text">
-              <h3>Smart Notification</h3>
-              <p>Nearby NGOs, Volunteers, and Receivers get instantly notified about your available food on their dashboard.</p>
-            </div>
+          <div className="info-card">
+            <div className="icon-wrap green"><span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>2</span></div>
+            <h3>Smart Notification</h3>
+            <p>Nearby NGOs, Volunteers, and Receivers get instantly notified about your available food on their dashboard.</p>
           </div>
-          <div className="step-arrow"><FiArrowRight /></div>
-
-          <div className="process-step">
-            <div className="step-number">3</div>
-            <div className="step-text">
-              <h3>Pick Up & Distribute</h3>
-              <p>The Receiver claims the food, picks it up from your location, and distributes it to the needy before it spoils.</p>
-            </div>
+          <div className="info-card">
+            <div className="icon-wrap green"><span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>3</span></div>
+            <h3>Pick Up & Distribute</h3>
+            <p>The Receiver claims the food, picks it up from your location, and distributes it to the needy before it spoils.</p>
           </div>
         </div>
       </section>
@@ -108,15 +98,15 @@ function Home() {
 
         <div className="grid-cards-3 roles-grid">
           <div className="role-box">
-            <h4><FiCheckCircle className="check-icon"/> Food Donors</h4>
+            <h4><FiCheckCircle className="check-icon" /> Food Donors</h4>
             <p>If you host parties, run a hotel, or have excess food at home, become a donor. Help us turn your surplus into smiles.</p>
           </div>
           <div className="role-box">
-            <h4><FiCheckCircle className="check-icon"/> Receivers (NGOs)</h4>
+            <h4><FiCheckCircle className="check-icon" /> Receivers (NGOs)</h4>
             <p>If you run a shelter, orphanage, or help the needy on streets, register as a receiver to claim fresh food daily.</p>
           </div>
           <div className="role-box">
-            <h4><FiCheckCircle className="check-icon"/> Platform Admins</h4>
+            <h4><FiCheckCircle className="check-icon" /> Platform Admins</h4>
             <p>Admins oversee the entire process, ensuring quality matching and tracking exactly how much food is saved globally.</p>
           </div>
         </div>

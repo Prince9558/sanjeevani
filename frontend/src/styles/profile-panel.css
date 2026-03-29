@@ -25,7 +25,10 @@
 
 .profile-modal {
   width: min(720px, 100%);
-  background: #ffffff;
+  background: rgba(248, 251, 248, 0.96);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0,0,0,0.03);
   border-radius: 16px;
   box-shadow: 0 18px 60px rgba(15, 23, 42, 0.25);
   padding: 16px;
