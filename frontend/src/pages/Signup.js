@@ -12,6 +12,7 @@ function Signup() {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState("donor");
   const [mobile, setMobile] = useState("");
+  const [address, setAddress] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,7 +24,7 @@ function Signup() {
   const handleSignup = async () => {
     setError("");
 
-    if (!name || !email || !mobile || !password || !confirmPassword) {
+    if (!name || !email || !mobile || !address || !password || !confirmPassword) {
       setError("All fields are required.");
       return;
     }
@@ -56,6 +57,7 @@ function Signup() {
           name,
           email,
           mobile,
+          address,
           password,
           role,
         },
@@ -73,6 +75,8 @@ function Signup() {
           email: data.email,
           role: data.role,
           mobile: data.mobile,
+          name: data.name,
+          address: data.address,
         },
       });
 
@@ -131,6 +135,16 @@ function Signup() {
               const val = e.target.value.replace(/\D/g, "");
               setMobile(val);
             }}
+          />
+        </div>
+
+        <div className="input-group">
+          <FaUser className="icon" />
+          <input
+            type="text"
+            placeholder="Address / Location"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
           />
         </div>
 

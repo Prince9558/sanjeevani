@@ -14,8 +14,12 @@ function DonorDashboard() {
 
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState("overview"); // overview, requests, inventory
+  const [view, setView] = useState(() => sessionStorage.getItem("donorDashView") || "overview");
+  const [filterDate, setFilterDate] = useState("");
 
+  useEffect(() => {
+    sessionStorage.setItem("donorDashView", view);
+  }, [view]);
   const [name, setName] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [quantityValue, setQuantityValue] = useState("");
@@ -62,6 +66,15 @@ function DonorDashboard() {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Check file size (limit: 500 KB)
+    if (file.size > 500 * 1024) {
+      alert("Image size should be less than 500KB.");
+      e.target.value = ""; // Clear the input
+      setImagePreview("");
+      setImageData("");
+      return;
+    }
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -126,7 +139,7 @@ function DonorDashboard() {
       });
 
       alert("Item added successfully.");
-      
+
       setName("");
       setExpiryDate("");
       setQuantityValue("");
@@ -134,7 +147,7 @@ function DonorDashboard() {
       setAddress("");
       setImagePreview("");
       setImageData("");
-      
+
       loadItems();
       setView("requests");
     } catch (err) {
@@ -147,11 +160,11 @@ function DonorDashboard() {
       alert("Receiver mobile number not found. Cannot send OTP.");
       return;
     }
-    
-    const phoneNumber = String(item.receiver.mobile).startsWith("+") 
-      ? String(item.receiver.mobile) 
+
+    const phoneNumber = String(item.receiver.mobile).startsWith("+")
+      ? String(item.receiver.mobile)
       : `+91${String(item.receiver.mobile)}`;
-      
+
     try {
       if (!window.recaptchaVerifier) {
         window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
@@ -176,7 +189,7 @@ function DonorDashboard() {
   const handleConfirmOtp = async (foodId) => {
     const otp = otpInputs[foodId];
     if (!otp) return;
-    
+
     if (foodId !== otpSentFor || !confirmationResultObj) {
       alert("Please send the OTP first!");
       return;
@@ -185,7 +198,7 @@ function DonorDashboard() {
     try {
       // 1. Verify with Firebase
       await confirmationResultObj.confirm(otp);
-      
+
       // 2. Inform backend to mark as collected
       await apiRequest("/api/food/pickup/verify", {
         method: "POST",
@@ -207,6 +220,23 @@ function DonorDashboard() {
 
   const requestsCount = items.filter(it => it.status === "reserved" || it.status === "available").length;
 
+  const filteredItems = items.filter(item => {
+    const isStatusMatch = view === "requests"
+      ? (item.status === "reserved" || item.status === "available")
+      : item.status === "collected";
+
+    if (!isStatusMatch) return false;
+
+    if (filterDate) {
+      const compareDate = item.status === "collected" ? item.collectedAt : (item.createdAt || item.reservedAt);
+      if (compareDate) {
+        return new Date(compareDate).toISOString().slice(0, 10) === filterDate;
+      }
+      return false; // If there's a filterDate but no item date, hide it
+    }
+    return true;
+  });
+
   return (
     <div className="dash-layout">
       <aside className="dash-sidebar">
@@ -216,23 +246,23 @@ function DonorDashboard() {
         </div>
 
         <nav className="dash-menu">
-          <button 
-            className={`menu-item ${view === "overview" ? "active" : ""}`} 
+          <button
+            className={`menu-item ${view === "overview" ? "active" : ""}`}
             onClick={() => setView("overview")}>
             Overview
           </button>
-          <button 
-            className={`menu-item ${view === "add" ? "active" : ""}`} 
+          <button
+            className={`menu-item ${view === "add" ? "active" : ""}`}
             onClick={() => setView("add")}>
             Add Food Items
           </button>
-          <button 
-            className={`menu-item ${view === "requests" ? "active" : ""}`} 
+          <button
+            className={`menu-item ${view === "requests" ? "active" : ""}`}
             onClick={() => setView("requests")}>
             Requests {requestsCount > 0 && `(${requestsCount})`}
           </button>
-          <button 
-            className={`menu-item ${view === "inventory" ? "active" : ""}`} 
+          <button
+            className={`menu-item ${view === "inventory" ? "active" : ""}`}
             onClick={() => setView("inventory")}>
             Inventory
           </button>
@@ -267,7 +297,7 @@ function DonorDashboard() {
                 <div style={{ background: "#f1f8e9", padding: "1.5rem", borderRadius: "12px", border: "1px solid #c5e1a5" }}>
                   <h3 style={{ fontSize: "1.3rem", color: "#2e7d32", marginBottom: "1rem" }}>Our Mission</h3>
                   <p style={{ lineHeight: "1.6", color: "#37474f" }}>
-                    We aim to obliterate food waste by instantly bridging the gap between generous donors and waiting receivers. 
+                    We aim to obliterate food waste by instantly bridging the gap between generous donors and waiting receivers.
                     Every item you share makes a profound difference in your community, reducing global waste and greenhouse emissions while actively nourishing lives.
                   </p>
                 </div>
@@ -275,7 +305,7 @@ function DonorDashboard() {
                 <div style={{ background: "#e8eaf6", padding: "1.5rem", borderRadius: "12px", border: "1px solid #c5cae9" }}>
                   <h3 style={{ fontSize: "1.3rem", color: "#283593", marginBottom: "1rem" }}>Why Donating is Important</h3>
                   <p style={{ lineHeight: "1.6", color: "#37474f" }}>
-                    On average, one-third of all food produced globally goes to waste. When you donate, you ensure that perfectly good meals aren't discarded into landfills. 
+                    On average, one-third of all food produced globally goes to waste. When you donate, you ensure that perfectly good meals aren't discarded into landfills.
                     You help families save resources and foster a culture of local sustainability and empathy.
                   </p>
                 </div>
@@ -283,8 +313,8 @@ function DonorDashboard() {
                 <div style={{ background: "#fff3e0", padding: "1.5rem", borderRadius: "12px", border: "1px solid #ffe0b2" }}>
                   <h3 style={{ fontSize: "1.3rem", color: "#e65100", marginBottom: "1rem" }}>How You Can Contribute</h3>
                   <p style={{ lineHeight: "1.6", color: "#37474f" }}>
-                    1. Go to the <strong>Add Food Items</strong> tab to list your surplus food.<br/>
-                    2. Check your <strong>Requests</strong> tab to see if a receiver has reserved your item.<br/>
+                    1. Go to the <strong>Add Food Items</strong> tab to list your surplus food.<br />
+                    2. Check your <strong>Requests</strong> tab to see if a receiver has reserved your item.<br />
                     3. Verify their <strong>OTP</strong> when they arrive for pickup to successfully complete the donation cycle!
                   </p>
                 </div>
@@ -292,8 +322,8 @@ function DonorDashboard() {
                 <div style={{ background: "#e0f7fa", padding: "1.5rem", borderRadius: "12px", border: "1px solid #b2ebf2" }}>
                   <h3 style={{ fontSize: "1.3rem", color: "#006064", marginBottom: "1rem" }}>Benefits of Donating</h3>
                   <p style={{ lineHeight: "1.6", color: "#37474f" }}>
-                    - <strong>Environmental Impact:</strong> Lower your carbon footprint.<br/>
-                    - <strong>Community Building:</strong> Directly impact local hunger.<br/>
+                    - <strong>Environmental Impact:</strong> Lower your carbon footprint.<br />
+                    - <strong>Community Building:</strong> Directly impact local hunger.<br />
                     - <strong>Transparency:</strong> Our secure OTP and barcode system guarantees your donation safely reaches the intended receiver safely.
                   </p>
                 </div>
@@ -311,111 +341,112 @@ function DonorDashboard() {
 
               {error && <p className="auth-error">{error}</p>}
 
-                <div className="donor-form-grid">
-                  <div className="donor-field-group">
-                    <span className="donor-label">Product name</span>
+              <div className="donor-form-grid">
+                <div className="donor-field-group">
+                  <span className="donor-label">Product name</span>
+                  <input
+                    className="donor-input"
+                    placeholder="e.g. Fresh milk 1L"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
+                </div>
+
+                <div className="donor-field-group">
+                  <span className="donor-label">Expiry date</span>
+                  <input
+                    className="donor-input"
+                    type="date"
+                    value={expiryDate}
+                    onChange={(e) => setExpiryDate(e.target.value)}
+                  />
+                </div>
+
+                <div className="donor-field-group">
+                  <span className="donor-label">Quantity</span>
+                  <div className="donor-quantity-row">
                     <input
                       className="donor-input"
-                      placeholder="e.g. Fresh milk 1L"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      placeholder="Amount"
+                      value={quantityValue}
+                      onChange={(e) => setQuantityValue(e.target.value)}
                     />
-                  </div>
-
-                  <div className="donor-field-group">
-                    <span className="donor-label">Expiry date</span>
-                    <input
-                      className="donor-input"
-                      type="date"
-                      value={expiryDate}
-                      onChange={(e) => setExpiryDate(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="donor-field-group">
-                    <span className="donor-label">Quantity</span>
-                    <div className="donor-quantity-row">
-                      <input
-                        className="donor-input"
-                        type="number"
-                        min="0"
-                        step="0.1"
-                        placeholder="Amount"
-                        value={quantityValue}
-                        onChange={(e) => setQuantityValue(e.target.value)}
-                      />
-                      <select
-                        className="donor-select"
-                        value={quantityUnit}
-                        onChange={(e) => setQuantityUnit(e.target.value)}
-                      >
-                        <option value="kg">KG</option>
-                        <option value="g">Gram</option>
-                        <option value="packet">Packet</option>
-                        <option value="piece">Piece</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="donor-field-group">
-                    <span className="donor-label">Product image</span>
-                    <div className="donor-upload-row">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                      />
-                      {imagePreview && (
-                        <img
-                          src={imagePreview}
-                          alt="Preview"
-                          className="donor-upload-preview"
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="donor-field-group" style={{ gridColumn: "1 / -1" }}>
-                    <span className="donor-label">Pickup address</span>
-                    <textarea
-                      className="donor-textarea"
-                      placeholder="Enter address where the receiver will collect the food."
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="donor-field-group" style={{ gridColumn: "1 / -1" }}>
-                    <span className="donor-label">Share live location (map)</span>
-                    <button
-                      type="button"
-                      className="donor-secondary-btn"
-                      onClick={handleUseLocation}
-                      disabled={isLocating}
+                    <select
+                      className="donor-select"
+                      value={quantityUnit}
+                      onChange={(e) => setQuantityUnit(e.target.value)}
                     >
-                      {isLocating ? "Fetching location…" : "Use my current location"}
-                    </button>
-                    {location && (
-                      <div className="donor-location-map">
-                        <iframe
-                          title="Pickup location"
-                          src={`https://www.google.com/maps?q=${location.lat},${location.lng}&z=15&output=embed`}
-                          loading="lazy"
-                          referrerPolicy="no-referrer-when-downgrade"
-                        />
-                      </div>
+                      <option value="kg">KG</option>
+                      <option value="g">Gram</option>
+                      <option value="g">Litre</option>
+                      <option value="packet">Packet</option>
+                      <option value="piece">Piece</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="donor-field-group">
+                  <span className="donor-label">Product image</span>
+                  <div className="donor-upload-row">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                    />
+                    {imagePreview && (
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="donor-upload-preview"
+                      />
                     )}
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  className="donor-primary-btn full"
-                  onClick={handleAddItem}
-                >
-                  Add food item
-                </button>
+                <div className="donor-field-group" style={{ gridColumn: "1 / -1" }}>
+                  <span className="donor-label">Pickup address</span>
+                  <textarea
+                    className="donor-textarea"
+                    placeholder="Enter address where the receiver will collect the food."
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
+                </div>
+
+                <div className="donor-field-group" style={{ gridColumn: "1 / -1" }}>
+                  <span className="donor-label">Share live location (map)</span>
+                  <button
+                    type="button"
+                    className="donor-secondary-btn"
+                    onClick={handleUseLocation}
+                    disabled={isLocating}
+                  >
+                    {isLocating ? "Fetching location…" : "Use my current location"}
+                  </button>
+                  {location && (
+                    <div className="donor-location-map">
+                      <iframe
+                        title="Pickup location"
+                        src={`https://www.google.com/maps?q=${location.lat},${location.lng}&z=15&output=embed`}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
+
+              <button
+                type="button"
+                className="donor-primary-btn full"
+                onClick={handleAddItem}
+              >
+                Add food item
+              </button>
+            </div>
           )}
 
           {(view === "requests" || view === "inventory") && (
@@ -424,30 +455,31 @@ function DonorDashboard() {
                 <div>
                   <h2>{view === "requests" ? "Pending Requests" : "My Inventory"}</h2>
                   <p className="donor-section-subtitle">
-                    {view === "requests" 
+                    {view === "requests"
                       ? "Items you have added (Available) and items waiting for receiver OTP (Reserved)."
                       : "Items you have successfully donated (Collected) will appear here."}
                   </p>
                 </div>
-                <div className="donor-inventory-count">
+                <div className="donor-inventory-count" style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                  <input
+                    type="date"
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value)}
+                    style={{ padding: "8px", borderRadius: "8px", border: "1px solid #cfd8dc" }}
+                    title="Filter by date"
+                  />
                   {loading && "Loading..."}
                 </div>
               </div>
 
               <div className="donor-inventory-list">
-                {!loading && items.filter(item => 
-                  view === "requests" ? (item.status === "reserved" || item.status === "available") : item.status === "collected"
-                ).length === 0 && (
+                {!loading && filteredItems.length === 0 && (
                   <p className="donor-section-subtitle">
                     No items found in this section.
                   </p>
                 )}
 
-                {items
-                  .filter(item => 
-                    view === "requests" ? (item.status === "reserved" || item.status === "available") : item.status === "collected"
-                  )
-                  .map((item) => {
+                {filteredItems.map((item) => {
                   const qtyLabel = `${item.quantity} ${item.unit}`;
                   return (
                     <div key={item._id} className="donor-item">
@@ -460,20 +492,20 @@ function DonorDashboard() {
                       ) : (
                         <div className="donor-item-image" style={{ display: "flex", alignItems: "center", justifyContent: "center", color: "#90a4ae", fontSize: "0.85rem", fontWeight: 600 }}>No Image</div>
                       )}
-                      
+
                       <div className="donor-item-main">
                         <div className="donor-item-header-row">
                           <div className="donor-item-name">{item.name}</div>
                           <div className="donor-item-chip">{qtyLabel}</div>
                         </div>
-                        
+
                         <div className="donor-item-meta">
                           Expiry: {item.expiryDate ? String(item.expiryDate).slice(0, 10) : "N/A"}
                         </div>
                         <div className="donor-item-meta">
                           Pickup: {item.address || "N/A"}
                         </div>
-                        
+
                         <div className="donor-status-row">
                           <div className={`donor-status-pill ${item.status === 'collected' ? 'selected' : 'available'}`}>
                             <span className="donor-status-radio"></span>
@@ -483,16 +515,16 @@ function DonorDashboard() {
 
                         {item.status === "collected" && (
                           <div style={{ marginTop: "10px", padding: "10px", background: "#e8f5e9", borderRadius: "8px", border: "1px solid #c8e6c9" }}>
-                           <p style={{ color: "#2e7d32", fontWeight: "bold", margin: "0 0 4px 0", fontSize: "0.9rem" }}>✓ Donated Successfully</p>
-                           <p style={{ margin: 0, fontSize: "0.85rem", color: "#1b5e20" }}>Receiver ID: {item.collectedBy}</p>
-                           {item.collectedAt && <p style={{ margin: "2px 0 0 0", fontSize: "0.8rem", color: "#388e3c" }}>{new Date(item.collectedAt).toLocaleString()}</p>}
+                            <p style={{ color: "#2e7d32", fontWeight: "bold", margin: "0 0 4px 0", fontSize: "0.9rem" }}>✓ Donated Successfully</p>
+                            <p style={{ margin: 0, fontSize: "0.85rem", color: "#1b5e20" }}>Receiver ID: {item.collectedBy}</p>
+                            {item.collectedAt && <p style={{ margin: "2px 0 0 0", fontSize: "0.8rem", color: "#388e3c" }}>{new Date(item.collectedAt).toLocaleString()}</p>}
                           </div>
                         )}
 
                         {item.status === "reserved" && (
                           <div style={{ marginTop: "10px", padding: "10px", background: "#fff3e0", borderRadius: "8px", border: "1px solid #ffe0b2" }}>
                             <p style={{ margin: "0 0 8px 0", fontSize: "0.85rem", color: "#e65100", fontWeight: "bold" }}>OTP required (Receiver handover)</p>
-                            
+
                             {otpSentFor !== item._id ? (
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                                 <span style={{ fontSize: "0.85rem", color: "#555" }}>

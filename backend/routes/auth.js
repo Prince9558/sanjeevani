@@ -4,15 +4,16 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
+const { requireAuth } = require('../middleware/auth');
 
 
 // ================= REGISTER =================
 router.post('/register', async (req, res) => {
-  const { name, email, password, role, mobile } = req.body;
+  const { name, email, password, role, mobile, address } = req.body;
 
   try {
-    if (!email || !password || !mobile) {
-      return res.status(400).json({ message: "name, email, mobile and password are required" });
+    if (!email || !password || !mobile || !name || !address) {
+      return res.status(400).json({ message: "name, email, mobile, address and password are required" });
     }
 
     if (role === 'admin') {
@@ -25,6 +26,7 @@ router.post('/register', async (req, res) => {
       name: name || "",
       email,
       mobile,
+      address: address || "",
       password: hashedPassword,
       role: role || "receiver",
     });
@@ -75,7 +77,9 @@ router.post('/login', async (req, res) => {
       token,
       email: user.email,
       role: user.role,
-      mobile: user.mobile
+      mobile: user.mobile,
+      name: user.name,
+      address: user.address,
     });
 
   } catch (err) {
@@ -154,5 +158,24 @@ router.post('/reset-password', async (req, res) => {
   }
 });
 
+
+// ================= UPDATE PROFILE =================
+router.put('/profile', requireAuth, async (req, res) => {
+  const { name, mobile, address } = req.body;
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (name !== undefined) user.name = name;
+    if (mobile !== undefined) user.mobile = mobile;
+    if (address !== undefined) user.address = address;
+
+    await user.save();
+    return res.json({ message: "Profile updated successfully", name: user.name, mobile: user.mobile, address: user.address });
+  } catch (err) {
+    console.error("Profile update error:", err);
+    return res.status(500).json({ message: "Failed to update profile" });
+  }
+});
 
 module.exports = router;

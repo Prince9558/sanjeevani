@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   password: String,
   role: { type: String, default: "receiver" },
   mobile: String,
+  address: String,
 
   otp: String,
   otpExpiry: Date,

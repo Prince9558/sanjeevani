@@ -1,36 +1,66 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import "../styles/profile-panel.css";
-import { readJson, writeJson } from "../utils/storage";
+import { apiRequest, getAuthToken, CURRENT_USER_KEY } from "../utils/api";
 
-function getInitials(email) {
-  const first = (email || "?").trim().charAt(0).toUpperCase();
+function getInitials(user) {
+  const nameToUse = user?.name || user?.email || "?";
+  const first = nameToUse.trim().charAt(0).toUpperCase();
   return first || "?";
 }
 
 export default function ProfilePanel({ user, onLogout }) {
   const [open, setOpen] = useState(false);
-  const profileKey = useMemo(
-    () => (user?.email ? `profile_${user.email}` : "profile_unknown"),
-    [user?.email]
-  );
+  const [saving, setSaving] = useState(false);
 
-  const [draft, setDraft] = useState(() => {
-    const stored = readJson(profileKey, {});
-    return {
-      name: stored?.name || "",
-      mobile: stored?.mobile || user?.mobile || "",
-      email: user?.email || "",
-      address: stored?.address || "",
-    };
+  const [draft, setDraft] = useState({
+    name: user?.name || "",
+    mobile: user?.mobile || "",
+    email: user?.email || "",
+    address: user?.address || "",
   });
 
-  const save = () => {
-    writeJson(profileKey, {
-      name: draft.name.trim(),
-      mobile: draft.mobile.trim(),
-      address: draft.address.trim(),
+  const handleOpen = () => {
+    setDraft({
+      name: user?.name || "",
+      mobile: user?.mobile || "",
+      email: user?.email || "",
+      address: user?.address || "",
     });
-    setOpen(false);
+    setOpen(true);
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const token = getAuthToken();
+      const updatedProfile = await apiRequest("/api/auth/profile", {
+        method: "PUT",
+        token,
+        body: {
+          name: draft.name.trim(),
+          mobile: draft.mobile.trim(),
+          address: draft.address.trim(),
+        }
+      });
+      
+      const currentSessionStr = sessionStorage.getItem(CURRENT_USER_KEY);
+      if (currentSessionStr) {
+        const currentSession = JSON.parse(currentSessionStr);
+        currentSession.name = updatedProfile.name;
+        currentSession.mobile = updatedProfile.mobile;
+        currentSession.address = updatedProfile.address;
+        sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(currentSession));
+        
+        user.name = updatedProfile.name;
+        user.mobile = updatedProfile.mobile;
+        user.address = updatedProfile.address;
+      }
+      setOpen(false);
+    } catch (err) {
+      alert("Failed to update profile: " + err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -38,11 +68,11 @@ export default function ProfilePanel({ user, onLogout }) {
       <button
         type="button"
         className="profile-icon"
-        onClick={() => setOpen(true)}
+        onClick={handleOpen}
         aria-label="Open profile"
         title="Profile"
       >
-        {getInitials(user?.email)}
+        {getInitials(user)}
       </button>
 
       {open && (
@@ -106,8 +136,8 @@ export default function ProfilePanel({ user, onLogout }) {
               <button type="button" className="profile-btn ghost" onClick={onLogout}>
                 Logout
               </button>
-              <button type="button" className="profile-btn" onClick={save}>
-                Save changes
+              <button type="button" className="profile-btn" onClick={save} disabled={saving}>
+                {saving ? "Saving..." : "Save changes"}
               </button>
             </div>
           </div>

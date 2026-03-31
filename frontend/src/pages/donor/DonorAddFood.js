@@ -23,6 +23,15 @@ export default function DonorAddFood() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check file size (limit: 500 KB)
+    if (file.size > 500 * 1024) {
+      alert("Image size should be less than 500KB.");
+      e.target.value = ""; // Clear the input
+      setImagePreview("");
+      setImageData("");
+      return;
+    }
+
     const reader = new FileReader();
     reader.onload = () => {
       const result = typeof reader.result === "string" ? reader.result : "";

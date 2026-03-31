@@ -9,7 +9,12 @@ function AdminDashboard() {
   const user = JSON.parse(sessionStorage.getItem("currentUser"));
   const token = getAuthToken();
 
-  const [view, setView] = useState("overview");
+  const [view, setView] = useState(() => sessionStorage.getItem("adminDashView") || "overview");
+  const [filterDate, setFilterDate] = useState("");
+
+  useEffect(() => {
+    sessionStorage.setItem("adminDashView", view);
+  }, [view]);
   const [kpis, setKpis] = useState(null);
   const [donors, setDonors] = useState([]);
   const [receivers, setReceivers] = useState([]);
@@ -119,7 +124,7 @@ function AdminDashboard() {
         const d = item.addedAt ? new Date(item.addedAt) : null;
         if (!reportDate || (d && d.toISOString().slice(0, 10) === reportDate)) {
           rows.push({
-            type: "Added", 
+            type: "Available", 
             color: "#1976d2", bg: "#e3f2fd",
             name: item.foodId?.name || "Deleted Item",
             donor: item.donorId?.email || "Unknown",
@@ -173,6 +178,27 @@ function AdminDashboard() {
   const reportTotalPages = Math.ceil(reportTotalItems / reportItemsPerPage) || 1;
   const reportStartIdx = (reportPage - 1) * reportItemsPerPage;
   const currentReportRows = reportsFilteredRows.slice(reportStartIdx, reportStartIdx + reportItemsPerPage);
+
+  const filteredStock = (view === "today"
+    ? donatedToday
+    : view === "yesterday"
+      ? donatedYesterday
+      : view === "pending"
+        ? pendingNotDonated
+        : view === "requests"
+          ? inRequests
+          : allStock
+  ).filter(it => {
+    if (!filterDate) return true;
+    const compareDate = it.status === "collected" 
+      ? it.collectedAt 
+      : (it.createdAt || it.addedAt || it.reservedAt);
+    
+    if (compareDate) {
+      return new Date(compareDate).toISOString().slice(0, 10) === filterDate;
+    }
+    return false;
+  });
 
   if (!user || user.role !== "admin") return null;
 
@@ -322,17 +348,37 @@ function AdminDashboard() {
               view === "pending" ||
               view === "requests") && (
               <div className="dash-card" style={{ gridColumn: "1 / -1" }}>
-                <h2>
-                  {view === "today"
-                    ? "Donated today"
-                    : view === "yesterday"
-                      ? "Donated yesterday"
-                      : view === "pending"
-                        ? "Added but not donated"
-                        : view === "requests"
-                          ? "In requests"
-                          : "Stock items"}
-                </h2>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "10px" }}>
+                  <h2 style={{ margin: 0 }}>
+                    {view === "today"
+                      ? "Donated today"
+                      : view === "yesterday"
+                        ? "Donated yesterday"
+                        : view === "pending"
+                          ? "Added but not donated"
+                          : view === "requests"
+                            ? "In requests"
+                            : "Stock items"}
+                  </h2>
+                  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+                    <input 
+                      type="date" 
+                      value={filterDate}
+                      onChange={(e) => setFilterDate(e.target.value)}
+                      style={{ padding: "8px", borderRadius: "8px", border: "1px solid #cfd8dc" }}
+                      title="Filter by date"
+                    />
+                    {filterDate && (
+                      <button 
+                        type="button" 
+                        onClick={() => setFilterDate("")} 
+                        style={{ padding: "6px 12px", background: "#f5f5f5", border: "1px solid #ccc", borderRadius: "8px", cursor: "pointer", fontSize: "0.85rem", height: "100%" }}
+                      >
+                        Clear
+                      </button>
+                    )}
+                  </div>
+                </div>
 
                 <ul
                   style={{
@@ -345,17 +391,11 @@ function AdminDashboard() {
                     gap: 12,
                   }}
                 >
-                  {(view === "today"
-                    ? donatedToday
-                    : view === "yesterday"
-                      ? donatedYesterday
-                      : view === "pending"
-                        ? pendingNotDonated
-                        : view === "requests"
-                          ? inRequests
-                          : allStock
-                  ).map((it) => (
-                    <li
+                  {filteredStock.length === 0 ? (
+                    <li style={{ color: "#78909c" }}>No items match the selected date filter.</li>
+                  ) : filteredStock.map((it) => (
+                      <li
+
                       key={it._id || it.barcode}
                       className="dash-card"
                       style={{ padding: 12 }}
@@ -427,7 +467,7 @@ function AdminDashboard() {
                       style={{ padding: "0.5rem 1rem", borderRadius: "8px", border: "1px solid #cfd8dc", fontSize: "0.95rem" }}
                     >
                       <option value="all">All Events</option>
-                      <option value="added">Food Added Logs</option>
+                      <option value="added">Available Items Logs</option>
                       <option value="reserved">Reserved Logs</option>
                       <option value="collected">Delivered Logs</option>
                     </select>

@@ -13,7 +13,12 @@ function ReceiverDashboard() {
   const [available, setAvailable] = useState([]); // Collect items pool
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [view, setView] = useState("overview"); // overview, collect, reserved, inventory
+  const [view, setView] = useState(() => sessionStorage.getItem("receiverDashView") || "overview");
+  const [filterDate, setFilterDate] = useState("");
+
+  useEffect(() => {
+    sessionStorage.setItem("receiverDashView", view);
+  }, [view]);
 
   useEffect(() => {
     if (!user || user.role !== "receiver") {
@@ -67,6 +72,23 @@ function ReceiverDashboard() {
       setError(err?.message || "Failed to reserve item");
     }
   };
+
+  const filteredItems = items.filter(item => {
+    const isStatusMatch = view === "reserved" 
+      ? item.status === "reserved" 
+      : item.status === "collected";
+    
+    if (!isStatusMatch) return false;
+
+    if (filterDate) {
+      const compareDate = item.status === "collected" ? item.collectedAt : item.reservedAt;
+      if (compareDate) {
+        return new Date(compareDate).toISOString().slice(0, 10) === filterDate;
+      }
+      return false;
+    }
+    return true;
+  });
 
   if (!user || user.role !== "receiver") return null;
 
@@ -179,7 +201,7 @@ function ReceiverDashboard() {
                     padding: 0,
                     margin: 0,
                     display: "grid",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 250px), 1fr))",
                     gap: 12,
                   }}
                 >
@@ -216,17 +238,16 @@ function ReceiverDashboard() {
                         )}
                         <div>
                           <div style={{ fontWeight: 600 }}>{it.name}</div>
-                          <div className="dash-subtitle">
-                            Qty: {it.quantity} {it.unit} · Exp:{" "}
-                            {it.expiryDate ? String(it.expiryDate).slice(0, 10) : "Not set"}
+                          <div className="dash-subtitle" style={{ marginBottom: 2 }}>
+                            Qty: {it.quantity} {it.unit}
                           </div>
                           <div className="dash-subtitle">
-                            Donor: {it.donor?.email || "Unknown"}
+                            Exp: {it.expiryDate ? String(it.expiryDate).slice(0, 10) : "Not set"}
                           </div>
                         </div>
                       </div>
 
-                      <div className="dash-subtitle" style={{ marginTop: 8 }}>
+                      <div className="dash-subtitle" style={{ marginTop: 8, wordBreak: "break-word", whiteSpace: "pre-wrap" }}>
                         Address: {it.address}
                       </div>
 
@@ -263,16 +284,27 @@ function ReceiverDashboard() {
 
           {(view === "reserved" || view === "inventory") && (
             <div className="dash-card" style={{ gridColumn: "1 / -1" }}>
-              <h2>{view === "reserved" ? "Reserved Items" : "My Inventory"}</h2>
-              <p className="dash-subtitle">
-                {view === "reserved"
-                  ? "Items you have securely reserved. The donor will send an SMS OTP to your registered number during pickup."
-                  : "Items you have successfully collected from donors."}
-              </p>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "1rem" }}>
+                <div>
+                  <h2>{view === "reserved" ? "Reserved Items" : "My Inventory"}</h2>
+                  <p className="dash-subtitle">
+                    {view === "reserved"
+                      ? "Items you have securely reserved. The donor will send an SMS OTP to your registered number during pickup."
+                      : "Items you have successfully collected from donors."}
+                  </p>
+                </div>
+                <input 
+                  type="date" 
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  style={{ padding: "8px", borderRadius: "8px", border: "1px solid #cfd8dc" }}
+                  title="Filter by date"
+                />
+              </div>
 
               {loading ? (
                 <p className="dash-subtitle">Loading...</p>
-              ) : items.filter((it) => (view === "reserved" ? it.status === "reserved" : it.status === "collected")).length === 0 ? (
+              ) : filteredItems.length === 0 ? (
                 <p className="dash-subtitle">No items found in this section.</p>
               ) : (
                 <ul
@@ -280,81 +312,102 @@ function ReceiverDashboard() {
                     listStyle: "none",
                     padding: 0,
                     margin: 0,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 10,
-                    marginTop: 10,
+                    display: "grid",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 250px), 1fr))",
+                    gap: 12,
                   }}
                 >
-                  {items
-                    .filter((it) => (view === "reserved" ? it.status === "reserved" : it.status === "collected"))
-                    .map((it) => (
-                      <li
-                        key={it._id}
-                        style={{
-                          display: "grid",
-                          gridTemplateColumns: "auto minmax(0,1fr)",
-                          gap: 10,
-                          border: "1px solid #e0e0e0",
-                          padding: 10,
-                          borderRadius: 12,
-                          background: "#fafafa",
-                        }}
-                      >
-                        {it.imageUrl ? (
-                          <img
-                            src={it.imageUrl}
-                            alt={it.name}
-                            style={{
-                              width: 72,
-                              height: 72,
-                              borderRadius: 10,
-                              objectFit: "cover",
-                              background: "#eceff1",
-                            }}
-                          />
-                        ) : (
+                  {filteredItems.map((it) => (
+                      <li key={it._id} className="dash-card" style={{ padding: 12 }}>
+                        <div
+                          style={{
+                            display: "grid",
+                            gridTemplateColumns: "auto minmax(0,1fr)",
+                            gap: 10,
+                          }}
+                        >
+                          {it.imageUrl ? (
+                            <img
+                              src={it.imageUrl}
+                              alt={it.name}
+                              style={{
+                                width: 72,
+                                height: 72,
+                                borderRadius: 10,
+                                objectFit: "cover",
+                                background: "#eceff1",
+                              }}
+                            />
+                          ) : (
+                            <div
+                              style={{
+                                width: 72,
+                                height: 72,
+                                borderRadius: 10,
+                                background: "#eceff1",
+                              }}
+                            />
+                          )}
+                          <div>
+                            <div style={{ fontWeight: 600 }}>{it.name}</div>
+                            <div className="dash-subtitle" style={{ marginBottom: 2 }}>
+                              Qty: {it.quantity} {it.unit}
+                            </div>
+                            <div className="dash-subtitle">
+                              Exp: {it.expiryDate ? String(it.expiryDate).slice(0, 10) : "Not set"}
+                            </div>
+                            {view === "reserved" && (
+                              <div className="dash-subtitle" style={{ marginTop: 4 }}>
+                                Donor Contact: {it.donor?.mobile || "N/A"}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="dash-subtitle" style={{ marginTop: 8, wordBreak: "break-word", whiteSpace: "pre-wrap" }}>
+                          Address: {it.address || "N/A"}
+                        </div>
+
+                        {view === "reserved" && it.location && (
                           <div
                             style={{
-                              width: 72,
-                              height: 72,
-                              borderRadius: 10,
-                              background: "#eceff1",
+                              marginTop: 8,
+                              borderRadius: 12,
+                              overflow: "hidden",
+                              border: "1px solid #cfd8dc",
                             }}
-                          />
+                          >
+                            <iframe
+                              title="Donor location"
+                              src={`https://www.google.com/maps?q=${it.location.lat},${it.location.lng}&z=15&output=embed`}
+                              loading="lazy"
+                              referrerPolicy="no-referrer-when-downgrade"
+                              style={{ width: "100%", height: 140, border: "none" }}
+                            />
+                          </div>
                         )}
-                        <div>
-                          <div style={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 10 }}>
-                            <div>
-                              <div style={{ fontWeight: 600 }}>{it.name}</div>
-                              <div className="dash-subtitle">
-                                Qty: {it.quantity} {it.unit} · Exp:{" "}
-                                {it.expiryDate ? String(it.expiryDate).slice(0, 10) : "Not set"}
-                              </div>
+
+                        <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                          <span
+                            style={{
+                              display: "inline-block",
+                              padding: "4px 8px",
+                              borderRadius: 12,
+                              background: view === "reserved" ? "#fff3e0" : "#e8f5e9",
+                              color: view === "reserved" ? "#e65100" : "#2e7d32",
+                              fontSize: "0.85rem",
+                              fontWeight: 500,
+                              alignSelf: "flex-start",
+                            }}
+                          >
+                            {view === "reserved" ? "Pending Pickup" : "Collected Successfully"}
+                          </span>
+                          
+                          {view === "reserved" && (
+                            <div style={{ background: "#fff8e1", padding: "4px 10px", borderRadius: "12px", border: "1px solid #ffecb3", alignSelf: "flex-start" }}>
+                              <span style={{ fontSize: "0.75rem", color: "#f57f17", fontWeight: 700, textTransform: "uppercase" }}>AWAITING SMS AT PICKUP</span>
                             </div>
-                            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "6px" }}>
-                              <span
-                                style={{
-                                  padding: "4px 8px",
-                                  borderRadius: 12,
-                                  background: view === "reserved" ? "#fff3e0" : "#e8f5e9",
-                                  color: view === "reserved" ? "#e65100" : "#2e7d32",
-                                  fontSize: "0.85rem",
-                                  fontWeight: 500,
-                                }}
-                              >
-                                {view === "reserved" ? "Pending Pickup" : "Collected Successfully"}
-                              </span>
-                              {view === "reserved" && (
-                                <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "#fff8e1", padding: "4px 10px", borderRadius: "20px", border: "1px solid #ffecb3" }}>
-                                  <span style={{ fontSize: "0.75rem", color: "#f57f17", fontWeight: 700, textTransform: "uppercase" }}>AWAITING SMS AT PICKUP</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="dash-subtitle" style={{ marginTop: 4 }}>
-                            Donor Contact: {it.donor?.email || "Unknown"}
-                          </div>
+                          )}
                         </div>
                       </li>
                     ))}

@@ -154,6 +154,9 @@ router.post("/reserve", requireAuth, async (req, res) => {
       receiverId: req.user.id,
       reservedAt: food.reservedAt,
     });
+    
+    // Remove from unreserved logs
+    await UnreservedItem.deleteOne({ foodId: food._id });
 
     const donor = await User.findById(food.donor).select("email name mobile").lean();
     const receiver = await User.findById(req.user.id).select("mobile").lean();
@@ -222,6 +225,9 @@ router.post("/pickup/verify", requireAuth, async (req, res) => {
       receiverId: food.reservedBy,
       collectedAt: food.collectedAt,
     });
+    
+    // Remove from reserved logs
+    await ReservedItem.deleteOne({ foodId: food._id });
 
     return res.json({ message: "Pickup completed", foodId: food._id });
   } catch (err) {
