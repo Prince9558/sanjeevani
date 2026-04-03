@@ -112,14 +112,17 @@ function Home() {
         </div>
       </section>
 
-      {/* Call to action & Footer */}
+      {/* Call to action Section */}
+      <section className="ready-cta-section py-section" style={{ textAlign: "center", background: "transparent" }}>
+        <h2 style={{ fontSize: "2.5rem", marginBottom: "20px", color: "#333", fontWeight: "800", textShadow: "0 2px 14px rgba(255, 255, 255, 0.9)" }}>Ready To Make a Difference?</h2>
+        <Link to="/signup" className="btn-solid large">Join Sanjeevani Now</Link>
+      </section>
+
+      {/* Footer */}
       <footer className="simple-footer">
-        <div className="footer-cta">
-          <h2>Ready To Make a Difference?</h2>
-          <Link to="/signup" className="btn-solid">Join Sanjeevani Now</Link>
-        </div>
         <div className="footer-copyright">
           <p style={{ color: "#ffffff", fontSize: "1.05rem", margin: 0 }}>&copy; {new Date().getFullYear()} Sanjeevani Food Donation Platform. Designed to save food and lives.</p>
+          <p style={{ color: "#e6f4ea", fontSize: "1rem", margin: "8px 0 0 0", fontWeight: "500", letterSpacing: "0.5px" }}>Developed by - Prince Raj</p>
         </div>
       </footer>
     </div>

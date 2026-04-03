@@ -561,7 +561,7 @@ function DonorDashboard() {
 
                       <div className="donor-barcode">
                         <img
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`Name: ${item.name}\nQty: ${item.quantity} ${item.unit}\nExp: ${item.expiryDate ? String(item.expiryDate).slice(0, 10) : "-"}\nDonor: ${user.name || user.email}\nAddress: ${item.address || "N/A"}\nStatus: ${item.status.toUpperCase()}`)}`}
+                          src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/item/${item._id}`)}`}
                           alt="QR Code"
                         />
                         <div className="donor-barcode-code">ID: {item.barcode}</div>

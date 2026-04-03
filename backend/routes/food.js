@@ -332,4 +332,32 @@ router.get("/by-barcode/:barcode", requireAuth, async (req, res) => {
   }
 });
 
+// Public detail lookup (for QR code scanning)
+// GET /api/food/public-details/:id
+router.get("/public-details/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const food = await ProductDetail.findById(id).lean();
+    if (!food) return res.status(404).json({ message: "Food not found" });
+
+    // Optionally fetch the donor's name
+    const donor = await User.findById(food.donor).select("name email").lean();
+
+    return res.json({
+      id: food._id,
+      name: food.name,
+      expiryDate: food.expiryDate,
+      expiryState: food.expiryState,
+      quantity: food.quantity,
+      unit: food.unit,
+      address: food.address,
+      imageUrl: food.imageUrl,
+      status: food.status,
+      donor: donor ? donor.name || donor.email : "Unknown",
+    });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to fetch food details" });
+  }
+});
+
 module.exports = router;

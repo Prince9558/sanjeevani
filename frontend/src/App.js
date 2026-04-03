@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import ReceiverDashboard from "./pages/ReceiverDashboard";
 import DonorDashboard from "./pages/DonorDashboard";
+import FoodDetails from "./pages/FoodDetails";
 
 function App() {
   React.useEffect(() => {
@@ -33,6 +34,7 @@ function App() {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/donor-dashboard" element={<DonorDashboard />} />
         <Route path="/receiver-dashboard" element={<ReceiverDashboard />} />
+        <Route path="/item/:id" element={<FoodDetails />} />
       </Routes>
     </Router>
   );
