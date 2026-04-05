@@ -30,6 +30,7 @@ function DonorDashboard() {
   const [location, setLocation] = useState(null);
   const [isLocating, setIsLocating] = useState(false);
   const [error, setError] = useState("");
+  const [imageFile, setImageFile] = useState(null);
   const [otpInputs, setOtpInputs] = useState({});
   const [otpSentFor, setOtpSentFor] = useState(null);
   const [confirmationResultObj, setConfirmationResultObj] = useState(null);
@@ -67,12 +68,12 @@ function DonorDashboard() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file size (limit: 500 KB)
-    if (file.size > 500 * 1024) {
-      alert("Image size should be less than 500KB.");
+    // Check file size (limit: 5 MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image size should be less than 5MB.");
       e.target.value = ""; // Clear the input
       setImagePreview("");
-      setImageData("");
+      setImageFile(null);
       return;
     }
 
@@ -80,7 +81,7 @@ function DonorDashboard() {
     reader.onload = () => {
       const result = typeof reader.result === "string" ? reader.result : "";
       setImagePreview(result);
-      setImageData(result);
+      setImageFile(file);
     };
     reader.readAsDataURL(file);
   };
@@ -123,19 +124,26 @@ function DonorDashboard() {
       return;
     }
 
+    const formData = new FormData();
+    formData.append("name", name.trim());
+    formData.append("quantity", quantity);
+    formData.append("unit", quantityUnit);
+    formData.append("expiryDate", expiryDate);
+    formData.append("address", address.trim());
+    
+    if (location) {
+      formData.append("location", JSON.stringify(location));
+    }
+    
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
     try {
       await apiRequest("/api/food/add", {
         method: "POST",
         token,
-        body: {
-          name: name.trim(),
-          quantity,
-          unit: quantityUnit,
-          expiryDate,
-          address: address.trim(),
-          imageUrl: imageData || "",
-          location,
-        },
+        body: formData,
       });
 
       alert("Item added successfully.");
@@ -146,7 +154,7 @@ function DonorDashboard() {
       setQuantityUnit("kg");
       setAddress("");
       setImagePreview("");
-      setImageData("");
+      setImageFile(null);
 
       loadItems();
       setView("requests");

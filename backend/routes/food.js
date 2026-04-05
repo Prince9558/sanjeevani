@@ -6,6 +6,7 @@ const ReservedItem = require("../models/ReservedItem");
 const CollectedItem = require("../models/CollectedItem");
 const UnreservedItem = require("../models/UnreservedItem");
 const { requireAuth } = require("../middleware/auth");
+const { upload } = require("../config/cloudinary");
 
 function createBarcode() {
   return `FD-${Date.now()}-${Math.random().toString(16).slice(2, 9)}`;
@@ -17,7 +18,7 @@ function createOtp() {
 
 // Add a food item (donor)
 // POST /api/food/add
-router.post("/add", requireAuth, async (req, res) => {
+router.post("/add", requireAuth, upload.single("image"), async (req, res) => {
   try {
     const {
       name,
@@ -25,10 +26,32 @@ router.post("/add", requireAuth, async (req, res) => {
       unit,
       expiryDate,
       address,
-      imageUrl,
-      location,
-      barcodePayload,
+      location: locationRaw,
+      barcodePayload: barcodePayloadRaw,
     } = req.body;
+
+    let imageUrl = "";
+    if (req.file && req.file.path) {
+      imageUrl = req.file.path; // The Cloudinary URL provided by multer-storage-cloudinary
+    }
+
+    let location = null;
+    if (locationRaw) {
+      try {
+        location = typeof locationRaw === "string" ? JSON.parse(locationRaw) : locationRaw;
+      } catch (e) {
+        console.error("Failed to parse location:", e);
+      }
+    }
+
+    let barcodePayload = null;
+    if (barcodePayloadRaw) {
+      try {
+        barcodePayload = typeof barcodePayloadRaw === "string" ? JSON.parse(barcodePayloadRaw) : barcodePayloadRaw;
+      } catch (e) {
+         console.error("Failed to parse barcode payload:", e);
+      }
+    }
 
     if (!name || !quantity || !expiryDate || !address) {
       return res.status(400).json({ message: "Missing required fields" });

@@ -19,16 +19,18 @@ export default function DonorAddFood() {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
 
+  const [imageFile, setImageFile] = useState(null); // Track the actual file object
+
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file size (limit: 500 KB)
-    if (file.size > 500 * 1024) {
-      alert("Image size should be less than 500KB.");
+    // Check file size (limit: 5 MB for cloud uploads)
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image size should be less than 5MB.");
       e.target.value = ""; // Clear the input
       setImagePreview("");
-      setImageData("");
+      setImageFile(null);
       return;
     }
 
@@ -36,7 +38,7 @@ export default function DonorAddFood() {
     reader.onload = () => {
       const result = typeof reader.result === "string" ? reader.result : "";
       setImagePreview(result);
-      setImageData(result);
+      setImageFile(file); // Store the actual file for upload
     };
     reader.readAsDataURL(file);
   };
@@ -81,18 +83,25 @@ export default function DonorAddFood() {
       return;
     }
 
+    const formData = new FormData();
+    formData.append("name", name.trim());
+    formData.append("quantity", quantity);
+    formData.append("unit", quantityUnit);
+    formData.append("expiryDate", expiryDate);
+    formData.append("address", address.trim());
+    
+    if (location) {
+      formData.append("location", JSON.stringify(location));
+    }
+    
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
     apiRequest("/api/food/add", {
       method: "POST",
       token,
-      body: {
-        name: name.trim(),
-        quantity,
-        unit: quantityUnit,
-        expiryDate,
-        address: address.trim(),
-        imageUrl: imageData || "",
-        location,
-      },
+      body: formData, // the modified utils/api.js handles FormData properly
     })
       .then((data) => {
         setName("");
@@ -101,7 +110,7 @@ export default function DonorAddFood() {
         setQuantityUnit("kg");
         setAddress("");
         setImagePreview("");
-        setImageData("");
+        setImageFile(null);
         setLocation(null);
         setStatus("Food item added successfully.");
       })
