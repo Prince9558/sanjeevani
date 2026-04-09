@@ -178,4 +178,48 @@ router.put('/profile', requireAuth, async (req, res) => {
   }
 });
 
+
+// ================= FEEDBACK =================
+const ProductDetail = require("../models/ProductDetail");
+
+router.post('/feedback', requireAuth, async (req, res) => {
+  const { feedback, toEmail, foodId } = req.body;
+  if (!feedback) return res.status(400).json({ message: "Feedback is required" });
+
+  try {
+    const userEmail = req.user.email;
+    if (!userEmail) return res.status(400).json({ message: "No user email found" });
+
+    if (foodId) {
+      const food = await ProductDetail.findById(foodId);
+      if (food) {
+        if (food.feedbackGiven) {
+          return res.status(400).json({ message: "Feedback has already been submitted for this item in the past." });
+        }
+        food.feedbackGiven = true;
+        await food.save();
+      }
+    }
+
+    if (toEmail) {
+      await sendEmail({
+        email: toEmail,
+        subject: "New feedback regarding your donation - Sanjeevani",
+        message: `A receiver has provided feedback regarding a donation they picked up from you.<br/><br/><strong>Feedback:</strong><br/>${feedback}`
+      });
+    }
+
+    await sendEmail({
+      email: userEmail,
+      subject: "Thank You for Your Feedback - Food Value",
+      message: `Your feedback has been received and recorded. We highly appreciate your input, thank you for making Food Value a better place!`
+    });
+
+    return res.json({ message: "Feedback successfully registered and forwarded to the donor." });
+  } catch (err) {
+    console.error("Feedback error:", err);
+    return res.status(500).json({ message: "Failed to submit feedback" });
+  }
+});
+
 module.exports = router;

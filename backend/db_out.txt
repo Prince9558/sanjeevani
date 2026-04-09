@@ -1,7 +1,0 @@
-Connected directly using MongoClient
-Collections in foodvalue: collecteditems, reserveditems, unreserveditems, foods, users
-Collection 'unreserveditems' has 11 documents.
-Collection 'reserveditems' has 10 documents.
-Collection 'collecteditems' has 6 documents.
-Collection 'foods' has 11 documents.
-Collection 'users' has 6 documents.

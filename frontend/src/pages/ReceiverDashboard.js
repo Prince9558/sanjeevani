@@ -56,6 +56,22 @@ function ReceiverDashboard() {
     navigate("/");
   };
 
+  // Cancel a reservation
+  const handleCancelReservation = async (foodId) => {
+    if (!window.confirm("Are you sure you want to cancel this reservation?")) return;
+    try {
+      const res = await apiRequest("/api/food/cancel", {
+        method: "POST",
+        token,
+        body: { foodId },
+      });
+      alert(res.message);
+      loadData();
+    } catch (err) {
+      alert(err.message || "Failed to cancel reservation");
+    }
+  };
+
   const handleCollect = async (entry) => {
     setError("");
     try {
@@ -190,6 +206,9 @@ function ReceiverDashboard() {
           {view === "collect" && (
             <div className="dash-card" style={{ gridColumn: "1 / -1" }}>
               <h2>Available near you</h2>
+              <div style={{ background: "rgba(255,255,255,0.7)", padding: "12px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.1)", marginBottom: "16px", color: "#1b5e20", fontWeight: "bold", textAlign: "center" }}>
+                Please scan the QR code to verify the details before collecting the food.
+              </div>
               {loading ? (
                 <p className="dash-subtitle">Loading items…</p>
               ) : available.length === 0 ? (
@@ -251,24 +270,22 @@ function ReceiverDashboard() {
                         Address: {it.address}
                       </div>
 
-                      {it.location && (
-                        <div
-                          style={{
-                            marginTop: 8,
-                            borderRadius: 12,
-                            overflow: "hidden",
-                            border: "1px solid #cfd8dc",
-                          }}
-                        >
-                          <iframe
-                            title="Donor location"
-                            src={`https://www.google.com/maps?q=${it.location.lat},${it.location.lng}&z=15&output=embed`}
-                            loading="lazy"
-                            referrerPolicy="no-referrer-when-downgrade"
-                            style={{ width: "100%", height: 140, border: "none" }}
-                          />
+                      <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+                        {it.location && (
+                          <div style={{ flex: 1, borderRadius: 12, overflow: "hidden", border: "1px solid #cfd8dc" }}>
+                            <iframe
+                              title="Donor location"
+                              src={`https://www.google.com/maps?q=${it.location.lat},${it.location.lng}&z=15&output=embed`}
+                              loading="lazy"
+                              referrerPolicy="no-referrer-when-downgrade"
+                              style={{ width: "100%", height: 80, border: "none" }}
+                            />
+                          </div>
+                        )}
+                        <div style={{ border: "1px dashed rgba(0,0,0,0.1)", borderRadius: 12, padding: 8, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "rgba(255,255,255,0.4)", width: 80, flexShrink: 0 }}>
+                          <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/item/${it.id}`)}`} alt="QR Code" style={{ width: 60, height: 60, borderRadius: 6 }} />
                         </div>
-                      )}
+                      </div>
 
                       <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
                         <button className="chip" onClick={() => handleCollect(it)}>
@@ -368,24 +385,19 @@ function ReceiverDashboard() {
                           Address: {it.address || "N/A"}
                         </div>
 
-                        {view === "reserved" && it.location && (
-                          <div
-                            style={{
-                              marginTop: 8,
-                              borderRadius: 12,
-                              overflow: "hidden",
-                              border: "1px solid #cfd8dc",
-                            }}
-                          >
-                            <iframe
-                              title="Donor location"
-                              src={`https://www.google.com/maps?q=${it.location.lat},${it.location.lng}&z=15&output=embed`}
-                              loading="lazy"
-                              referrerPolicy="no-referrer-when-downgrade"
-                              style={{ width: "100%", height: 140, border: "none" }}
-                            />
-                          </div>
-                        )}
+                        <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+                          {view === "reserved" && it.location && (
+                            <div style={{ flex: 1, borderRadius: 12, overflow: "hidden", border: "1px solid #cfd8dc" }}>
+                              <iframe
+                                title="Donor location"
+                                src={`https://www.google.com/maps?q=${it.location.lat},${it.location.lng}&z=15&output=embed`}
+                                loading="lazy"
+                                referrerPolicy="no-referrer-when-downgrade"
+                                style={{ width: "100%", height: 80, border: "none" }}
+                              />
+                            </div>
+                          )}
+                        </div>
 
                         <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
                           <span
@@ -409,6 +421,58 @@ function ReceiverDashboard() {
                             </div>
                           )}
                         </div>
+
+                        {view === "reserved" && (
+                          <div style={{ marginTop: "10px" }}>
+                            <button
+                              style={{
+                                background: "rgba(211, 47, 47, 0.9)",
+                                color: "#fff",
+                                padding: "6px 12px",
+                                borderRadius: "8px",
+                                border: "none",
+                                fontSize: "0.8rem",
+                                cursor: "pointer",
+                                width: "100%",
+                                fontWeight: "bold"
+                              }}
+                              onClick={() => handleCancelReservation(it._id)}
+                            >
+                              Cancel Reservation
+                            </button>
+                          </div>
+                        )}
+
+                        {view === "inventory" && (
+                          <div style={{ marginTop: "10px" }}>
+                            <button 
+                              style={{ 
+                                width: "100%", 
+                                padding: "8px 12px", 
+                                fontSize: "0.9rem", 
+                                fontWeight: "bold",
+                                borderRadius: "8px", 
+                                background: "linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)",
+                                border: "none",
+                                color: "#fff",
+                                cursor: "pointer",
+                                transition: "all 0.2s",
+                                boxShadow: "0 4px 12px rgba(27, 94, 32, 0.2)"
+                              }}
+                              onMouseOver={(e) => { e.currentTarget.style.transform = "scale(1.02)"; }}
+                              onMouseOut={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
+                              onClick={() => {
+                                if (it.feedbackGiven) {
+                                  alert("You have already submitted your feedback. Only one submission is allowed.");
+                                } else {
+                                  window.open(`/feedback?to=${it.donor?.email || ''}&foodId=${it._id}`, '_blank');
+                                }
+                              }}
+                            >
+                              Give Feedback
+                            </button>
+                          </div>
+                        )}
                       </li>
                     ))}
                 </ul>

@@ -25,3 +25,35 @@ cron.schedule('0 0 * * *', async () => {
 
    console.log("Expiry check completed");
 });
+
+cron.schedule('*/15 * * * *', async () => {
+   const ReservedItem = require('../models/ReservedItem');
+   const UnreservedItem = require('../models/UnreservedItem');
+   
+   const reservedFoods = await ProductDetail.find({ status: "reserved" });
+   const now = new Date();
+
+   for (const food of reservedFoods) {
+      if (!food.reservedAt) continue;
+
+      const hoursPassed = (now - new Date(food.reservedAt)) / (1000 * 60 * 60);
+      const limit = food.foodType === "Cooked" ? 2 : 24;
+
+      if (hoursPassed >= limit) {
+         food.status = "available";
+         food.reservedBy = undefined;
+         food.reservedAt = undefined;
+         food.otp = String(Math.floor(100000 + Math.random() * 900000));
+         await food.save();
+
+         await ReservedItem.deleteOne({ foodId: food._id });
+         await UnreservedItem.create({
+            foodId: food._id,
+            itemName: food.name,
+            donorId: food.donor,
+            addedAt: new Date()
+         });
+         console.log(`Auto-cancelled reservation for food ID: ${food._id}`);
+      }
+   }
+});

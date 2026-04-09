@@ -217,18 +217,7 @@ function AdminDashboard() {
           >
             Admin overview
           </button>
-          <button
-            className={`menu-item ${view === "donors" ? "active" : ""}`}
-            onClick={() => setView("donors")}
-          >
-            Donors
-          </button>
-          <button
-            className={`menu-item ${view === "receivers" ? "active" : ""}`}
-            onClick={() => setView("receivers")}
-          >
-            Receivers
-          </button>
+
           <button
             className={`menu-item ${view === "stock" ? "active" : ""}`}
             onClick={() => setView("stock")}
@@ -316,31 +305,6 @@ function AdminDashboard() {
               </div>
             )}
 
-            {view === "donors" && (
-              <div className="dash-card" style={{ gridColumn: "1 / -1" }}>
-                <h2>Donors</h2>
-                <ul style={{ margin: 0, paddingLeft: 18 }}>
-                  {donors.length === 0 ? (
-                    <li>No donors yet.</li>
-                  ) : (
-                    donors.map((d) => <li key={d.email}>{d.email}</li>)
-                  )}
-                </ul>
-              </div>
-            )}
-
-            {view === "receivers" && (
-              <div className="dash-card" style={{ gridColumn: "1 / -1" }}>
-                <h2>Receivers</h2>
-                <ul style={{ margin: 0, paddingLeft: 18 }}>
-                  {receivers.length === 0 ? (
-                    <li>No receivers yet.</li>
-                  ) : (
-                    receivers.map((r) => <li key={r.email}>{r.email}</li>)
-                  )}
-                </ul>
-              </div>
-            )}
 
             {(view === "stock" ||
               view === "today" ||
@@ -435,10 +399,10 @@ function AdminDashboard() {
                             Qty: {it.quantity} {it.unit} · Exp:{" "}
                             {it.expiryDate ? String(it.expiryDate).slice(0, 10) : "-"}
                           </div>
-                          <div className="dash-subtitle">
+                          <div className="dash-subtitle" style={{ wordBreak: "break-all" }}>
                             Donor: {it.donor?.email || "-"}
                           </div>
-                          <div className="dash-subtitle">
+                          <div className="dash-subtitle" style={{ wordBreak: "break-all" }}>
                             Receiver:{" "}
                             {it.collectedBy?.email ||
                               it.reservedBy?.email ||

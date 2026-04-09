@@ -28,6 +28,8 @@ router.post("/add", requireAuth, upload.single("image"), async (req, res) => {
       address,
       location: locationRaw,
       barcodePayload: barcodePayloadRaw,
+      foodType,
+      cookedTime,
     } = req.body;
 
     let imageUrl = "";
@@ -94,6 +96,8 @@ router.post("/add", requireAuth, upload.single("image"), async (req, res) => {
       status: "available",
       expiryState: "Fresh",
       donor: donorId,
+      foodType: foodType || "Cooked",
+      cookedTime: cookedTime ? new Date(cookedTime) : null,
     });
 
     await UnreservedItem.create({
@@ -258,6 +262,48 @@ router.post("/pickup/verify", requireAuth, async (req, res) => {
   }
 });
 
+// Cancel reservation (by receiver)
+// POST /api/food/cancel
+router.post("/cancel", requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== "receiver" && req.user.role !== "admin") {
+      return res.status(403).json({ message: "Only receivers can cancel reservations" });
+    }
+
+    const { foodId } = req.body;
+    if (!foodId) return res.status(400).json({ message: "foodId is required" });
+
+    const food = await ProductDetail.findById(foodId);
+    if (!food) return res.status(404).json({ message: "Food item not found" });
+
+    if (String(food.reservedBy) !== String(req.user.id)) {
+      return res.status(403).json({ message: "Not your reservation" });
+    }
+
+    if (food.status !== "reserved") {
+       return res.status(409).json({ message: "Only reserved items can be cancelled" });
+    }
+
+    food.status = "available";
+    food.reservedBy = undefined;
+    food.reservedAt = undefined;
+    food.otp = createOtp(); // Regenerate OTP just for reset security
+    await food.save();
+
+    await ReservedItem.deleteOne({ foodId: food._id });
+    await UnreservedItem.create({
+      foodId: food._id,
+      itemName: food.name,
+      donorId: food.donor,
+      addedAt: new Date()
+    });
+
+    return res.json({ message: "Reservation successfully cancelled" });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to cancel reservation" });
+  }
+});
+
 // Donor list
 // GET /api/food/donor-items
 router.get("/donor-items", requireAuth, async (req, res) => {
@@ -376,6 +422,9 @@ router.get("/public-details/:id", async (req, res) => {
       address: food.address,
       imageUrl: food.imageUrl,
       status: food.status,
+      foodType: food.foodType,
+      cookedTime: food.cookedTime,
+      location: food.location || null,
       donor: donor ? donor.name || donor.email : "Unknown",
     });
   } catch (err) {

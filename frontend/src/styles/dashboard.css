@@ -11,9 +11,7 @@
 }
 
 .dash-sidebar {
-  background: rgba(27, 94, 32, 0.9);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(27, 94, 32, 0.7);
   color: #e8f5e9;
   padding: 20px 18px 18px;
   display: flex;
@@ -132,12 +130,11 @@
 }
 
 .dash-card {
-  background: rgba(248, 251, 248, 0.96);
+  background: rgba(255, 255, 255, 0.45);
   border-radius: 16px;
   padding: 18px 18px 16px;
-  border: 1px solid rgba(0,0,0,0.03);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(10px);
 }
 
 .dash-card.highlight {
@@ -145,7 +142,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr);
   gap: 18px;
-  background: rgba(248, 251, 248, 0.97);
+  background: rgba(255, 255, 255, 0.2);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
 }
 

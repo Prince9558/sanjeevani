@@ -14,6 +14,9 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/food', require('./routes/food'));
 app.use('/api/admin', require('./routes/admin'));
 
+// Ping route to wake up the server from cold start
+app.get('/api/ping', (req, res) => res.status(200).send({ status: 'ok' }));
+
 const mongoUri = process.env.MONGO_URI;
 const port = process.env.PORT || 5000;
 

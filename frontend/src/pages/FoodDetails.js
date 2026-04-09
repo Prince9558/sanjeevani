@@ -85,14 +85,45 @@ const FoodDetails = () => {
             </div>
           </div>
 
+          {food.foodType === "Cooked" && food.cookedTime && (
+            <div style={{ background: "#fff3e0", padding: "1rem", borderRadius: "8px", border: "1px solid #ffe0b2", display: "flex", justifyContent: "space-between" }}>
+              <div>
+                <p style={{ margin: 0, fontSize: "0.8rem", color: "#e65100" }}>Food Type</p>
+                <p style={{ margin: 0, fontWeight: "bold", color: "#b33c00" }}>Cooked Meal</p>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <p style={{ margin: 0, fontSize: "0.8rem", color: "#e65100" }}>Cooked Time</p>
+                <p style={{ margin: 0, fontWeight: "bold", color: "#b33c00" }}>{new Date(food.cookedTime).toLocaleString()}</p>
+              </div>
+            </div>
+          )}
+
+          {food.foodType === "Uncooked" && (
+            <div style={{ background: "#e8f5e9", padding: "1rem", borderRadius: "8px", border: "1px solid #c8e6c9" }}>
+              <p style={{ margin: 0, fontSize: "0.8rem", color: "#2e7d32" }}>Food Type</p>
+              <p style={{ margin: 0, fontWeight: "bold", color: "#1b5e20" }}>Packaged / Raw</p>
+            </div>
+          )}
+
           <div style={{ background: "#f5f5f5", padding: "1rem", borderRadius: "8px" }}>
             <p style={{ margin: 0, fontSize: "0.8rem", color: "#777" }}>Donor</p>
             <p style={{ margin: 0, fontWeight: "bold", color: "#333" }}>{food.donor}</p>
           </div>
 
           <div style={{ background: "#e3f2fd", padding: "1rem", borderRadius: "8px", border: "1px solid #bbdefb" }}>
-            <p style={{ margin: 0, fontSize: "0.85rem", color: "#1976d2", fontWeight: "bold", marginBottom: "0.2rem" }}>Pickup Address</p>
-            <p style={{ margin: 0, color: "#0d47a1", fontSize: "0.95rem" }}>{food.address || "N/A"}</p>
+            <p style={{ margin: 0, fontSize: "0.85rem", color: "#1976d2", fontWeight: "bold", marginBottom: "0.4rem" }}>Pickup Address</p>
+            <p style={{ margin: 0, color: "#0d47a1", fontSize: "0.95rem", marginBottom: food.location ? "1rem" : "0" }}>{food.address || "N/A"}</p>
+            {food.location && (
+              <div style={{ borderRadius: "8px", overflow: "hidden", border: "1px solid #90caf9" }}>
+                <iframe
+                  title="Donor location"
+                  src={`https://www.google.com/maps?q=${food.location.lat},${food.location.lng}&z=15&output=embed`}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  style={{ width: "100%", height: "150px", border: "none", display: "block" }}
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

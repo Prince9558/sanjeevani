@@ -47,6 +47,8 @@ function Login() {
       return;
     }
 
+    setLoading(true);
+
     try {
       const data = await apiRequest("/api/auth/login", {
         method: "POST",

@@ -9,6 +9,8 @@ export default function DonorAddFood() {
 
   const [name, setName] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
+  const [foodType, setFoodType] = useState("Cooked");
+  const [cookedTime, setCookedTime] = useState("");
   const [quantityValue, setQuantityValue] = useState("");
   const [quantityUnit, setQuantityUnit] = useState("kg");
   const [address, setAddress] = useState("");
@@ -67,8 +69,13 @@ export default function DonorAddFood() {
     setError("");
     setStatus("");
 
-    if (!name.trim() || !expiryDate || !quantityValue || !address.trim()) {
-      setError("Please fill all required fields (name, expiry, quantity, address).");
+    if (!name.trim() || !expiryDate || !quantityValue || !address.trim() || !imageFile || !location) {
+      setError("Please provide all mandatory details including image and location.");
+      return;
+    }
+
+    if (foodType === "Cooked" && !cookedTime) {
+      setError("Please specify the exact cooked time for cooked food.");
       return;
     }
 
@@ -85,6 +92,10 @@ export default function DonorAddFood() {
 
     const formData = new FormData();
     formData.append("name", name.trim());
+    formData.append("foodType", foodType);
+    if (foodType === "Cooked") {
+      formData.append("cookedTime", cookedTime);
+    }
     formData.append("quantity", quantity);
     formData.append("unit", quantityUnit);
     formData.append("expiryDate", expiryDate);
@@ -106,6 +117,8 @@ export default function DonorAddFood() {
       .then((data) => {
         setName("");
         setExpiryDate("");
+        setFoodType("Cooked");
+        setCookedTime("");
         setQuantityValue("");
         setQuantityUnit("kg");
         setAddress("");
@@ -139,7 +152,7 @@ export default function DonorAddFood() {
 
           <div className="donor-form-grid">
             <div className="donor-field-group">
-              <span className="donor-label">Product name</span>
+              <span className="donor-label">Product name *</span>
               <input
                 className="donor-input"
                 placeholder="e.g. Fresh milk 1L"
@@ -149,17 +162,40 @@ export default function DonorAddFood() {
             </div>
 
             <div className="donor-field-group">
-              <span className="donor-label">Expiry date</span>
+              <span className="donor-label">Food Type & Safety *</span>
+              <div className="donor-quantity-row" style={{ marginBottom: "10px" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "5px", cursor: "pointer", fontSize: "0.9rem" }}>
+                  <input type="radio" name="foodType" value="Cooked" checked={foodType === "Cooked"} onChange={() => setFoodType("Cooked")} /> Cooked
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: "5px", cursor: "pointer", fontSize: "0.9rem" }}>
+                  <input type="radio" name="foodType" value="Uncooked" checked={foodType === "Uncooked"} onChange={() => setFoodType("Uncooked")} /> Packaged / Raw
+                </label>
+              </div>
+              {foodType === "Cooked" && (
+                <div style={{ marginBottom: "15px" }}>
+                  <span className="donor-label" style={{ fontSize: "0.85rem", color: "#d32f2f" }}>* When was it cooked?</span>
+                  <input
+                    className="donor-input"
+                    type="datetime-local"
+                    value={cookedTime}
+                    onChange={(e) => setCookedTime(e.target.value)}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="donor-field-group">
+              <span className="donor-label">Expiry date *</span>
               <input
                 className="donor-input"
-                type="date"
+                type={foodType === "Cooked" ? "datetime-local" : "date"}
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
               />
             </div>
 
             <div className="donor-field-group">
-              <span className="donor-label">Quantity</span>
+              <span className="donor-label">Quantity *</span>
               <div className="donor-quantity-row">
                 <input
                   className="donor-input"
@@ -177,14 +213,16 @@ export default function DonorAddFood() {
                 >
                   <option value="kg">KG</option>
                   <option value="g">Gram</option>
+                  <option value="litre">Litre</option>
                   <option value="packet">Packet</option>
                   <option value="piece">Piece</option>
+                  <option value="plate">Plate</option>
                 </select>
               </div>
             </div>
 
             <div className="donor-field-group">
-              <span className="donor-label">Product image</span>
+              <span className="donor-label">Product image *</span>
               <div className="donor-upload-row">
                 <input type="file" accept="image/*" onChange={handleImageChange} />
                 {imagePreview && (
@@ -198,7 +236,7 @@ export default function DonorAddFood() {
             </div>
 
             <div className="donor-field-group" style={{ gridColumn: "1 / -1" }}>
-              <span className="donor-label">Pickup address</span>
+              <span className="donor-label">Pickup address *</span>
               <textarea
                 className="donor-textarea"
                 placeholder="Enter address where receiver will collect the food."
@@ -208,7 +246,7 @@ export default function DonorAddFood() {
             </div>
 
             <div className="donor-field-group" style={{ gridColumn: "1 / -1" }}>
-              <span className="donor-label">Share live location (map)</span>
+              <span className="donor-label">Share live location (map) *</span>
               <button
                 type="button"
                 className="donor-secondary-btn"
