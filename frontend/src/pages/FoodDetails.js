@@ -36,7 +36,7 @@ const FoodDetails = () => {
   if (error || !food) {
     return (
       <div className="home-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
-        <div className="auth-card" style={{ maxWidth: "400px", textAlign: "center", background: "rgba(255, 255, 255, 0.95)" }}>
+        <div className="auth-card" style={{ maxWidth: "400px", textAlign: "center", background: "rgba(255, 255, 255, 0.4)", border: "1px solid rgba(255, 255, 255, 0.8)", boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)", backdropFilter: "blur(10px)" }}>
           <h2 style={{ color: "#d32f2f", marginBottom: "1rem" }}>Error</h2>
           <p style={{ color: "#555" }}>{error}</p>
         </div>
@@ -46,7 +46,7 @@ const FoodDetails = () => {
 
   return (
     <div className="home-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "2rem", minHeight: "100vh" }}>
-      <div className="auth-card" style={{ maxWidth: "500px", width: "100%", padding: "2rem", background: "rgba(255, 255, 255, 0.96)", backdropFilter: "blur(10px)" }}>
+      <div className="auth-card" style={{ maxWidth: "500px", width: "100%", padding: "2rem", background: "rgba(255, 255, 255, 0.4)", border: "1px solid rgba(255, 255, 255, 0.8)", boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)", backdropFilter: "blur(10px)" }}>
         <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
           <h1 style={{ color: "#2e7d32", fontSize: "2rem", marginBottom: "0.5rem" }}>Food Details</h1>
           <p style={{ color: "#666", fontSize: "0.95rem" }}>Scanned via Sanjeevani QR Code</p>

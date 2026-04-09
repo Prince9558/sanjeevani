@@ -37,6 +37,9 @@ export default function FeedbackPage() {
 
       setStatus("success");
       setFeedback("");
+      if (foodId) {
+        localStorage.setItem('feedbackGiven_' + foodId, "true");
+      }
     } catch (err) {
       console.error(err);
       setStatus("error");

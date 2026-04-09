@@ -462,7 +462,7 @@ function ReceiverDashboard() {
                               onMouseOver={(e) => { e.currentTarget.style.transform = "scale(1.02)"; }}
                               onMouseOut={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
                               onClick={() => {
-                                if (it.feedbackGiven) {
+                                if (it.feedbackGiven || localStorage.getItem('feedbackGiven_' + it._id)) {
                                   alert("You have already submitted your feedback. Only one submission is allowed.");
                                 } else {
                                   window.open(`/feedback?to=${it.donor?.email || ''}&foodId=${it._id}`, '_blank');
