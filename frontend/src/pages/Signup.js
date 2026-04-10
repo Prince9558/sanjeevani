@@ -223,6 +223,9 @@ function Signup() {
           <div style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }} />
         </div>
 
+        <p style={{ textAlign: "center", fontSize: "14px", color: "#555", marginBottom: "10px" }}>
+          Continue with Google as <strong>{role.toUpperCase()}</strong>
+        </p>
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px", width: "100%" }}>
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
