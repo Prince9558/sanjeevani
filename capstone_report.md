@@ -34,7 +34,7 @@ Food wastage is a critical global issue that coexists with severe starvation and
 Built using the robust **MERN Stack (MongoDB, Express.js, React.js, Node.js)**, Sanjeevani acts as a fast, secure, and user-friendly portal. It incorporates a unique **Food Traceability System**, utilizing dynamic QR generation to track the origin, preparation time, and expiry constraints of food packages. It seamlessly connects Donors (individuals, organizations, event managers) to Receivers (NGOs, orphanages, individuals in need).
 
 Key features of this system include:
-*   Secure User Authentication & Authorization, including Single Sign-On (SSO) via Google OAuth.
+*   Secure User Authentication & Authorization.
 *   Intuitive Dashboards for Donors, Receivers, and Admins.
 *   Digital QR-Based Labeling for Food Authenticity and Traceability.
 *   Cloudinary Integration for robust image storage.
@@ -147,13 +147,11 @@ Sanjeevani is built entirely on the **MERN** stack, offering a unified JavaScrip
 - **React.js:** Component-based library for building user interfaces dynamically.
 - **React Router DOM:** For seamless client-side routing and Single Page Application (SPA) feel.
 - **Tailwind CSS / Vanilla CSS:** Used for highly customized, modern, responsive glassmorphic UI designs.
-- **Google OAuth (@react-oauth/google):** Integrated for seamless and secure user sign-up/login utilizing Google identity services.
 - **Axios:** For executing asynchronous HTTP requests to the backend.
 
 **Backend:**
 - **Node.js:** JavaScript runtime to execute background operations.
 - **Express.js:** Web framework for Node.js to easily manage API routes, requests, and middleware.
-- **Google Auth Library:** Used to securely verify ID tokens sent from the frontend against the Google backend to authenticate users.
 - **Cloudinary / Multer:** Multer intercepts the multipart/form-data containing files, and Cloudinary securely hosts them and provides optimized URLs.
 - **Bcryptjs & JWT:** For securely hashing passwords and generating session tokens to maintain authorized states.
 
@@ -209,11 +207,7 @@ When a donor uploads food:
 ## 5. IMPLEMENTATION & MODULES
 
 ### 5.1 User Authentication Module
-Security is foundational to the application. The system supports multiple modes of authentication:
-- **Traditional Authentication:** When a user registers locally, their raw password is encrypted using `bcrypt.js` with salt-rounds before saving to DB.
-- **Single Sign-On (Google OAuth):** Users can bypass traditional registration by signing in with their Google accounts. The React frontend leverages the `@react-oauth/google` provider to capture Google credentials, which are then securely verified on the backend using the `google-auth-library`. The system seamlessly retrieves the user's details and provisions an account if they are new.
-
-Upon successful login via either method, a secure `JSON Web Token (JWT)` is generated. This token is stored in the browser's local storage and attached via Headers as `Bearer <token>` to all subsequent protected API requests. The server validates these tokens, and expired tokens predictably force re-authentication.
+Security is foundational. When a user registers, their raw password is encrypted using `bcrypt.js` with salt-rounds before saving to DB. Upon login, a `JSON Web Token (JWT)` is generated. This token is stored in the browser's local storage and attached via Headers as `Bearer <token>` to all subsequent requests. Protected Routes actively verify this token; expired tokens force re-authentication.
 
 ### 5.2 Donor Module & Food Traceability
 This module represents the core innovation:
