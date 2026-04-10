@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/auth.css";
 import { FaEnvelope, FaLock, FaUser } from "react-icons/fa";
+import { GoogleLogin } from '@react-oauth/google';
 import { apiRequest, setAuth } from "../utils/api";
 import logo from "../assets/sanjeevani.jpeg";
 
@@ -85,6 +86,34 @@ function Signup() {
       else navigate("/donor-dashboard");
     } catch (err) {
       setError(err?.message || "Signup failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setError("");
+    setLoading(true);
+    try {
+      const data = await apiRequest("/api/auth/google", {
+        method: "POST",
+        body: { credential: credentialResponse.credential, role },
+      });
+
+      setAuth({
+        token: data.token,
+        user: {
+          email: data.email,
+          role: data.role,
+          mobile: data.mobile,
+        },
+      });
+
+      if (data.role === "admin") navigate("/admin-dashboard");
+      else if (data.role === "receiver") navigate("/receiver-dashboard");
+      else navigate("/donor-dashboard");
+    } catch (err) {
+      setError(err?.message || "Google registration failed.");
     } finally {
       setLoading(false);
     }
@@ -187,6 +216,19 @@ function Signup() {
         <button className="submit-btn" onClick={handleSignup} disabled={loading}>
           {loading ? "CREATING ACCOUNT..." : "CREATE NEW ACCOUNT"}
         </button>
+
+        <div style={{ margin: "20px 0", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }} />
+          <span style={{ margin: "0 10px", color: "#888", fontSize: "14px", fontWeight: "bold" }}>OR</span>
+          <div style={{ flex: 1, height: "1px", backgroundColor: "#ddd" }} />
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px", width: "100%" }}>
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => setError("Google Registration was unsuccessful.")}
+          />
+        </div>
 
         <p className="auth-switch-text">
           Already have an account?{" "}

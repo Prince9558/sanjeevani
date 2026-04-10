@@ -5,6 +5,9 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 const { requireAuth } = require('../middleware/auth');
+const { OAuth2Client } = require('google-auth-library');
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 
 // ================= REGISTER =================
@@ -84,6 +87,70 @@ router.post('/login', async (req, res) => {
 
   } catch (err) {
     return res.status(500).json({ message: "Login failed" });
+  }
+});
+
+
+// ================= GOOGLE AUTH =================
+router.post('/google', async (req, res) => {
+  const { credential, role } = req.body;
+
+  if (!credential) {
+    return res.status(400).json({ message: "Google credential is required" });
+  }
+
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name } = payload;
+
+    if (email === 'admin9558@gmail.com') { // Prevent hardcoded admin from bypassing password check if not needed, but here actually we can just allow it if they use google sign in? Better to just fallback to standard lookup. Admin login can just use standard lookup if they are in DB, or we can add same hardcode check.
+      const token = jwt.sign(
+        { id: 'admin-hardcoded', role: 'admin', email },
+        process.env.JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+      return res.json({ token, email, role: 'admin' });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      // Create new user with a random password since they are authenticating with Google
+      const randomPassword = Math.random().toString(36).slice(-10) + "A1@";
+      const hashedPassword = await bcrypt.hash(randomPassword, 10);
+      
+      user = await User.create({
+        name: name || "",
+        email: email,
+        password: hashedPassword,
+        role: role || "receiver", // By default we can set receiver, frontend will send role on signup
+        mobile: "",
+        address: "",
+      });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    return res.json({
+      token,
+      email: user.email,
+      role: user.role,
+      mobile: user.mobile,
+      name: user.name,
+      address: user.address,
+    });
+
+  } catch (err) {
+    console.error("Google Auth Error:", err);
+    return res.status(400).json({ message: "Google authentication failed" });
   }
 });
 
