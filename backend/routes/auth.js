@@ -34,7 +34,8 @@ router.post('/register', async (req, res) => {
       verificationToken
     });
 
-    const verifyLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify/${verificationToken}`;
+    const frontendUrl = req.headers.origin || process.env.FRONTEND_URL || 'http://localhost:3000';
+    const verifyLink = `${frontendUrl}/verify/${verificationToken}`;
     
     await sendEmail({
       email,
