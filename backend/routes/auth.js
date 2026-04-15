@@ -20,19 +20,35 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: "Admin account cannot be created via register" });
     }
 
+    let user = await User.findOne({ email });
     const hashedPassword = await bcrypt.hash(password, 10);
     const verificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
-    const user = await User.create({
-      name: name || "",
-      email,
-      mobile,
-      address: address || "",
-      password: hashedPassword,
-      role: role || "receiver",
-      isVerified: false,
-      verificationToken
-    });
+    if (user) {
+      if (user.isVerified) {
+        return res.status(409).json({ message: "Email already exists" });
+      } else {
+        // User exists but is unverified. Resend email and update info.
+        user.name = name || user.name;
+        user.mobile = mobile || user.mobile;
+        user.address = address || user.address;
+        user.password = hashedPassword;
+        user.role = role || "receiver";
+        user.verificationToken = verificationToken;
+        await user.save();
+      }
+    } else {
+      user = await User.create({
+        name: name || "",
+        email,
+        mobile,
+        address: address || "",
+        password: hashedPassword,
+        role: role || "receiver",
+        isVerified: false,
+        verificationToken
+      });
+    }
 
     const frontendUrl = req.headers.origin || process.env.FRONTEND_URL || 'http://localhost:3000';
     const verifyLink = `${frontendUrl}/verify/${verificationToken}`;
