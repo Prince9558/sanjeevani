@@ -62,6 +62,8 @@ function Login() {
           email: data.email,
           role: data.role,
           mobile: data.mobile,
+          name: data.name,
+          address: data.address
         },
       });
 

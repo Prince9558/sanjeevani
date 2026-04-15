@@ -290,7 +290,7 @@ function AdminDashboard() {
               <button onClick={() => { setView("users"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "users" ? "#764ba2" : "#546e7a", fontWeight: view === "users" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Users management</button>
               
               <div style={{ borderTop: "1px solid #eee", paddingTop: "12px", marginTop: "6px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                 <ProfilePanel user={user} onLogout={handleLogout} textMode={true} customClass="desktop-nav-button" />
+                 <ProfilePanel user={user} onLogout={handleLogout} textMode={true} customClass="mobile-nav-button" customStyle={{ textAlign: "left", background: "none", border: "none", color: "#546e7a", fontWeight: "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem" }} />
               </div>
             </div>
           )}

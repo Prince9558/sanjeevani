@@ -8,7 +8,7 @@ function getInitials(user) {
   return first || "?";
 }
 
-export default function ProfilePanel({ user, onLogout, textMode, customClass }) {
+export default function ProfilePanel({ user, onLogout, textMode, customClass, customStyle }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -70,7 +70,7 @@ export default function ProfilePanel({ user, onLogout, textMode, customClass }) 
           type="button"
           className={customClass || "desktop-nav-button"}
           onClick={handleOpen}
-          style={{ cursor: "pointer", ...(!customClass && { color: "rgba(255, 255, 255, 0.85)", fontWeight: "500", background: "transparent", border: "none" }) }}
+          style={{ cursor: "pointer", ...(!customClass && { color: "rgba(255, 255, 255, 0.85)", fontWeight: "500", background: "transparent", border: "none" }), ...customStyle }}
         >
           Profile
         </button>
