@@ -16,6 +16,7 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -39,8 +40,9 @@ function Signup() {
       return;
     }
 
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters long.");
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      setError("Password must be at least 8 characters and include a capital letter, small letter, number, and special character.");
       return;
     }
 
@@ -51,7 +53,7 @@ function Signup() {
 
     setLoading(true);
     try {
-      await apiRequest("/api/auth/register", {
+      const resp = await apiRequest("/api/auth/register", {
         method: "POST",
         body: {
           name,
@@ -63,26 +65,13 @@ function Signup() {
         },
       });
 
-      // Auto-login after successful signup
-      const data = await apiRequest("/api/auth/login", {
-        method: "POST",
-        body: { email, password },
-      });
-
-      setAuth({
-        token: data.token,
-        user: {
-          email: data.email,
-          role: data.role,
-          mobile: data.mobile,
-          name: data.name,
-          address: data.address,
-        },
-      });
-
-      if (data.role === "admin") navigate("/admin-dashboard");
-      else if (data.role === "receiver") navigate("/receiver-dashboard");
-      else navigate("/donor-dashboard");
+      setSuccess("Your account is created! A verification link has been sent to your email.");
+      setName("");
+      setEmail("");
+      setMobile("");
+      setAddress("");
+      setPassword("");
+      setConfirmPassword("");
     } catch (err) {
       setError(err?.message || "Signup failed");
     } finally {
@@ -103,6 +92,7 @@ function Signup() {
         <p className="subtitle">Smart Shelf-Life & Food Sharing</p>
 
         {error && <p className="auth-error">{error}</p>}
+        {success && <p className="auth-success" style={{color: "green", marginBottom: "15px"}}>{success}</p>}
 
         <div className="input-group">
           <FaUser className="icon" />
@@ -185,7 +175,7 @@ function Signup() {
         </div>
 
         <button className="submit-btn" onClick={handleSignup} disabled={loading}>
-          {loading ? "CREATING ACCOUNT..." : "CREATE NEW ACCOUNT"}
+          {loading ? "SENDING VERIFICATION..." : "VERIFY EMAIL"}
         </button>
 
         <p className="auth-switch-text">

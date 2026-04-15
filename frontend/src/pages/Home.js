@@ -8,14 +8,14 @@ function Home() {
   return (
     <div className="home-container">
       {/* Navigation */}
-      <nav className="home-nav" style={{ padding: "16px 6%", minHeight: "70px" }}>
+      <nav className="home-nav">
         <div className="nav-brand">
-          <img src={logo} alt="Sanjeevani" style={{ width: "40px", height: "40px", borderRadius: "6px" }} />
-          <span className="brand-name" style={{ fontSize: "1.2rem", fontWeight: "800", color: "#2F855A" }}>Sanjeevani</span>
+          <img src={logo} alt="Sanjeevani" style={{ width: "40px", height: "40px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.2)" }} />
+          <span className="brand-name" style={{ fontSize: "1.5rem", fontWeight: "bold", color: "white", letterSpacing: "0.5px" }}>Sanjeevani</span>
         </div>
         <div className="nav-actions">
-          <Link to="/login" className="btn-text" style={{ fontSize: "0.95rem" }}>Login</Link>
-          <Link to="/signup" className="btn-solid" style={{ padding: "6px 16px", fontSize: "0.95rem" }}>Sign Up Free</Link>
+          <Link to="/login" className="btn-text" style={{ fontSize: "0.95rem", color: "rgba(255, 255, 255, 0.85)" }}>Login</Link>
+          <Link to="/signup" className="btn-solid" style={{ padding: "6px 16px", fontSize: "0.95rem", background: "white", color: "#764ba2", border: "1px solid rgba(255,255,255,0.7)" }}>Sign Up Free</Link>
         </div>
       </nav>
 
@@ -122,7 +122,7 @@ function Home() {
       <footer className="simple-footer">
         <div className="footer-copyright">
           <p style={{ color: "#ffffff", fontSize: "1.05rem", margin: 0 }}>&copy; {new Date().getFullYear()} Sanjeevani Food Donation Platform. Designed to save food and lives.</p>
-          <p style={{ color: "#e6f4ea", fontSize: "1rem", margin: "8px 0 0 0", fontWeight: "500", letterSpacing: "0.5px" }}>Developed by - Prince Raj</p>
+          <p style={{ color: "#ede7f6", fontSize: "1rem", margin: "8px 0 0 0", fontWeight: "500", letterSpacing: "0.5px" }}>Developed by - Prince Raj</p>
         </div>
       </footer>
     </div>

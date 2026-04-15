@@ -8,6 +8,10 @@ const userSchema = new mongoose.Schema({
   mobile: String,
   address: String,
 
+  isVerified: { type: Boolean, default: false },
+  verificationToken: String,
+  isBlocked: { type: Boolean, default: false },
+
   otp: String,
   otpExpiry: Date,
   emailOtp: String,

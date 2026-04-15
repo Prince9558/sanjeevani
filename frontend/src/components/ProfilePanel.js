@@ -8,7 +8,7 @@ function getInitials(user) {
   return first || "?";
 }
 
-export default function ProfilePanel({ user, onLogout }) {
+export default function ProfilePanel({ user, onLogout, textMode, customClass }) {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -65,15 +65,26 @@ export default function ProfilePanel({ user, onLogout }) {
 
   return (
     <div className="profile-wrap">
-      <button
-        type="button"
-        className="profile-icon"
-        onClick={handleOpen}
-        aria-label="Open profile"
-        title="Profile"
-      >
-        {getInitials(user)}
-      </button>
+      {textMode ? (
+        <button
+          type="button"
+          className={customClass || "desktop-nav-button"}
+          onClick={handleOpen}
+          style={{ cursor: "pointer", ...(!customClass && { color: "rgba(255, 255, 255, 0.85)", fontWeight: "500", background: "transparent", border: "none" }) }}
+        >
+          Profile
+        </button>
+      ) : (
+        <button
+          type="button"
+          className="profile-icon"
+          onClick={handleOpen}
+          aria-label="Open profile"
+          title="Profile"
+        >
+          {getInitials(user)}
+        </button>
+      )}
 
       {open && (
         <div className="profile-backdrop" onClick={() => setOpen(false)}>

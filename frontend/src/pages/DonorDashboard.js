@@ -20,6 +20,7 @@ function DonorDashboard() {
   useEffect(() => {
     sessionStorage.setItem("donorDashView", view);
   }, [view]);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [name, setName] = useState("");
   const [foodType, setFoodType] = useState("Cooked");
   const [cookedTime, setCookedTime] = useState("");
@@ -288,64 +289,76 @@ function DonorDashboard() {
   });
 
   return (
-    <div className="dash-layout">
-      <aside className="dash-sidebar">
-        <div className="dash-brand">
-          <span className="dot" />
-          <span>Food Value</span>
+    <div className="dash-layout" style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
+      <header className="top-header-nav">
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <h1 style={{ margin: 0, fontSize: "1.5rem", letterSpacing: "0.5px", color: "white", fontWeight: "bold" }}>Sanjeevani</h1>
+        </div>
+        
+        {/* Desktop Navigation */}
+        <div className="desktop-nav-links">
+          <span>Welcome, {user?.role === 'admin' ? "Admin" : (user?.name || user?.email)}!</span>
+          <button className={`desktop-nav-button ${view === "overview" ? "active" : ""}`} onClick={() => setView("overview")}>Overview</button>
+          <button className={`desktop-nav-button ${view === "add" ? "active" : ""}`} onClick={() => setView("add")}>Add Food Items</button>
+          <button className={`desktop-nav-button ${view === "requests" ? "active" : ""}`} onClick={() => setView("requests")}>Requests {requestsCount > 0 && `(${requestsCount})`}</button>
+          <button className={`desktop-nav-button ${view === "inventory" ? "active" : ""}`} onClick={() => setView("inventory")}>Inventory</button>
+          
+          <ProfilePanel user={user} onLogout={handleLogout} textMode={true} />
         </div>
 
-        <nav className="dash-menu">
-          <button
-            className={`menu-item ${view === "overview" ? "active" : ""}`}
-            onClick={() => setView("overview")}>
-            Overview
+        {/* Mobile Navigation (Hamburger 3 Lines) */}
+        <div className="mobile-menu-btn" style={{ position: "relative" }}>
+          <button 
+            className="three-dots-btn"
+            style={{ color: "white" }}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            ☰
           </button>
-          <button
-            className={`menu-item ${view === "add" ? "active" : ""}`}
-            onClick={() => setView("add")}>
-            Add Food Items
-          </button>
-          <button
-            className={`menu-item ${view === "requests" ? "active" : ""}`}
-            onClick={() => setView("requests")}>
-            Requests {requestsCount > 0 && `(${requestsCount})`}
-          </button>
-          <button
-            className={`menu-item ${view === "inventory" ? "active" : ""}`}
-            onClick={() => setView("inventory")}>
-            Inventory
-          </button>
-        </nav>
 
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
-      </aside>
+          {menuOpen && (
+            <div style={{
+              position: "absolute", top: "100%", right: 0, marginTop: "8px", background: "white", borderRadius: "8px", 
+              width: "220px", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", padding: "12px", display: "flex", flexDirection: "column", gap: "4px", zIndex: 1000,
+              border: "1px solid #edf0ee"
+            }}>
+              <div style={{ color: "#37474f", fontWeight: "bold", borderBottom: "1px solid #eee", paddingBottom: "10px", marginBottom: "6px", fontSize: "1rem" }}>
+                Welcome, {user?.role === 'admin' ? "Admin" : (user?.name || user?.email)}!
+              </div>
 
-      <main className="dash-main">
+              <button onClick={() => { setView("overview"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "overview" ? "#764ba2" : "#546e7a", fontWeight: view === "overview" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Overview</button>
+              <button onClick={() => { setView("add"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "add" ? "#764ba2" : "#546e7a", fontWeight: view === "add" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Add Food Items</button>
+              <button onClick={() => { setView("requests"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "requests" ? "#764ba2" : "#546e7a", fontWeight: view === "requests" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Requests {requestsCount > 0 && `(${requestsCount})`}</button>
+              <button onClick={() => { setView("inventory"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "inventory" ? "#764ba2" : "#546e7a", fontWeight: view === "inventory" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Inventory</button>
+              
+              <div style={{ borderTop: "1px solid #eee", paddingTop: "12px", marginTop: "6px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                 <ProfilePanel user={user} onLogout={handleLogout} textMode={true} customClass="desktop-nav-button" />
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <main className="dash-main" style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
         <div id="recaptcha-container"></div>
-        <header className="dash-header donor-main-header" style={{ alignItems: "flex-start" }}>
-          <div>
-            <h1>Donor dashboard</h1>
-            <p className="dash-subtitle">
-              Add food items, share your location and manage your inventory.
-            </p>
-          </div>
-          <ProfilePanel user={user} onLogout={handleLogout} />
-        </header>
+        <div style={{ marginBottom: "20px" }}>
+          <h1 style={{ fontSize: "1.6rem", color: "#4a148c", margin: 0, fontWeight: "600" }}>Donor dashboard</h1>
+          <p className="dash-subtitle" style={{ marginTop: "4px" }}>
+            Add food items, share your location and manage your inventory.
+          </p>
+        </div>
 
         <section className="donor-grid">
           {view === "overview" && (
             <div className="dash-card donor-form-card" style={{ gridColumn: "1 / -1", padding: "2.5rem" }}>
               <div style={{ textAlign: "center", marginBottom: "3rem" }}>
-                <h2 style={{ fontSize: "2.5rem", color: "#1b5e20", marginBottom: "0.5rem" }}>Welcome to Food Value!</h2>
+                <h2 style={{ fontSize: "2.5rem", color: "#4a148c", marginBottom: "0.5rem" }}>Welcome to Food Value!</h2>
                 <p style={{ fontSize: "1.1rem", color: "#455a64" }}>Empowering communities by connecting surplus nourishment with those who need it most.</p>
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "2rem" }}>
-                <div style={{ background: "#f1f8e9", padding: "1.5rem", borderRadius: "12px", border: "1px solid #c5e1a5" }}>
-                  <h3 style={{ fontSize: "1.3rem", color: "#2e7d32", marginBottom: "1rem" }}>Our Mission</h3>
+                <div style={{ background: "#f8f0fc", padding: "1.5rem", borderRadius: "12px", border: "1px solid #d1c4e9" }}>
+                  <h3 style={{ fontSize: "1.3rem", color: "#764ba2", marginBottom: "1rem" }}>Our Mission</h3>
                   <p style={{ lineHeight: "1.6", color: "#37474f" }}>
                     We aim to obliterate food waste by instantly bridging the gap between generous donors and waiting receivers.
                     Every item you share makes a profound difference in your community, reducing global waste and greenhouse emissions while actively nourishing lives.
@@ -588,12 +601,12 @@ function DonorDashboard() {
 
                       {item.status === "collected" && (
                         <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 6 }}>
-                          <span style={{ display: "inline-block", padding: "4px 8px", borderRadius: 12, background: "rgba(232, 245, 233, 0.7)", color: "#2e7d32", fontSize: "0.85rem", fontWeight: 500, alignSelf: "flex-start", border: "1px solid rgba(200, 230, 201, 0.5)" }}>
+                          <span style={{ display: "inline-block", padding: "4px 8px", borderRadius: 12, background: "rgba(243, 229, 245, 0.7)", color: "#764ba2", fontSize: "0.85rem", fontWeight: 500, alignSelf: "flex-start", border: "1px solid rgba(225, 190, 231, 0.5)" }}>
                             Collected Successfully
                           </span>
-                          <div style={{ marginTop: "4px", background: "rgba(232, 245, 233, 0.4)", padding: "6px 8px", borderRadius: "8px" }}>
-                            <p style={{ margin: 0, fontSize: "0.85rem", color: "#1b5e20", wordBreak: "break-all" }}>Donated to: <br/><strong>{item.receiver?.email || item.collectedBy}</strong></p>
-                            {item.collectedAt && <p style={{ margin: "2px 0 0 0", fontSize: "0.75rem", color: "#388e3c" }}>{new Date(item.collectedAt).toLocaleString()}</p>}
+                          <div style={{ marginTop: "4px", background: "rgba(243, 229, 245, 0.4)", padding: "6px 8px", borderRadius: "8px" }}>
+                            <p style={{ margin: 0, fontSize: "0.85rem", color: "#4a148c", wordBreak: "break-all" }}>Donated to: <br/><strong>{item.receiver?.email || item.collectedBy}</strong></p>
+                            {item.collectedAt && <p style={{ margin: "2px 0 0 0", fontSize: "0.75rem", color: "#5e35b1" }}>{new Date(item.collectedAt).toLocaleString()}</p>}
                           </div>
 
                         </div>

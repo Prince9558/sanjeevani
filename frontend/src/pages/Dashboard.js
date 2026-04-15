@@ -42,7 +42,7 @@ function Dashboard() {
       <main className="dash-main">
         <header className="dash-header">
           <div>
-            <h1>Welcome back, {user?.email}</h1>
+            <h1>Welcome back, {user?.role === 'admin' ? "Admin" : (user?.name || user?.email)}</h1>
             <p className="dash-subtitle">
               You are logged in as <strong>{user?.role}</strong>. Here is a quick
               overview of today&apos;s activity.

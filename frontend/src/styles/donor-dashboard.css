@@ -8,10 +8,10 @@
 .donor-profile-card {
   padding: 10px 14px;
   border-radius: 12px;
-  background: rgba(232, 245, 233, 0.94);
+  background: rgba(243, 229, 245, 0.94);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  border: 1px solid #c8e6c9;
+  border: 1px solid #e1bee7;
   min-width: 220px;
 }
 
@@ -19,13 +19,13 @@
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #2e7d32;
+  color: #764ba2;
   margin-bottom: 4px;
 }
 
 .donor-profile-main {
   font-size: 0.94rem;
-  color: #1b5e20;
+  color: #4a148c;
 }
 
 .donor-profile-sub {
@@ -132,12 +132,12 @@
 
 .donor-secondary-btn {
   background: #ffffff;
-  color: #1b5e20;
-  border: 1px solid #c8e6c9;
+  color: #4a148c;
+  border: 1px solid #e1bee7;
 }
 
 .donor-primary-btn {
-  background: #1b5e20;
+  background: #4a148c;
   color: #ffffff;
 }
 
@@ -206,7 +206,7 @@
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-  background: #1b5e20;
+  background: #4a148c;
   color: #ffffff;
 }
 

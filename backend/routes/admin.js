@@ -33,8 +33,8 @@ router.get("/overview", requireAuth, async (req, res) => {
     const addedNotDonated = await ProductDetail.countDocuments({ status: "available" });
 
     const [donors, receivers] = await Promise.all([
-      User.find({ role: "donor" }).select("email name mobile"),
-      User.find({ role: "receiver" }).select("email name mobile"),
+      User.find({ role: "donor" }).select("email name mobile isBlocked"),
+      User.find({ role: "receiver" }).select("email name mobile isBlocked"),
     ]);
 
     return res.json({
@@ -88,6 +88,37 @@ router.get("/logs", requireAuth, async (req, res) => {
     return res.json({ added, reserved, collected });
   } catch (err) {
     return res.status(500).json({ message: "Failed to fetch logs" });
+  }
+});
+
+// DELETE /api/admin/food/:id
+router.delete("/food/:id", requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== "admin") return res.status(403).json({ message: "Admin access only" });
+    const product = await ProductDetail.findById(req.params.id);
+    if (!product) return res.status(404).json({ message: "Food item not found" });
+
+    await ProductDetail.findByIdAndDelete(req.params.id);
+    return res.json({ message: "Food item deleted successfully" });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to delete food item" });
+  }
+});
+
+// PUT /api/admin/user/:id/toggle-block
+router.put("/user/:id/toggle-block", requireAuth, async (req, res) => {
+  try {
+    if (req.user.role !== "admin") return res.status(403).json({ message: "Admin access only" });
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    if (user.role === "admin") return res.status(400).json({ message: "Cannot block admin user" });
+
+    user.isBlocked = !user.isBlocked;
+    await user.save();
+    
+    return res.json({ message: `User ${user.isBlocked ? 'blocked' : 'unblocked'} successfully` });
+  } catch (err) {
+    return res.status(500).json({ message: "Failed to toggle block status" });
   }
 });
 

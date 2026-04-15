@@ -6,9 +6,9 @@
   width: 40px;
   height: 40px;
   border-radius: 999px;
-  border: 1px solid #c8e6c9;
+  border: 1px solid #e1bee7;
   background: #ffffff;
-  color: #1b5e20;
+  color: #4a148c;
   font-weight: 800;
   cursor: pointer;
 }
@@ -45,7 +45,7 @@
 .profile-modal-title {
   font-size: 1.15rem;
   font-weight: 800;
-  color: #1b5e20;
+  color: #4a148c;
 }
 
 .profile-modal-sub {
@@ -111,7 +111,7 @@
   border-radius: 999px;
   border: none;
   padding: 10px 14px;
-  background: #1b5e20;
+  background: #4a148c;
   color: #ffffff;
   font-weight: 700;
   cursor: pointer;
@@ -119,8 +119,8 @@
 
 .profile-btn.ghost {
   background: #ffffff;
-  color: #1b5e20;
-  border: 1px solid #c8e6c9;
+  color: #4a148c;
+  border: 1px solid #e1bee7;
 }
 
 @media (max-width: 640px) {

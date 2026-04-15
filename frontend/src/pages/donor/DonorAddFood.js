@@ -69,8 +69,15 @@ export default function DonorAddFood() {
     setError("");
     setStatus("");
 
-    if (!name.trim() || !expiryDate || !quantityValue || !address.trim() || !imageFile || !location) {
-      setError("Please provide all mandatory details including image and location.");
+    if (!location) {
+      alert("Live Location is extremely mandatory. Please click 'Use my current location' to share it.");
+      setError("Live Location is missing.");
+      return;
+    }
+
+    if (!name.trim() || !expiryDate || !quantityValue || !address.trim() || !imageFile) {
+      alert("Please provide all mandatory details including the food image.");
+      setError("Please provide all mandatory details including image.");
       return;
     }
 
@@ -101,9 +108,7 @@ export default function DonorAddFood() {
     formData.append("expiryDate", expiryDate);
     formData.append("address", address.trim());
     
-    if (location) {
-      formData.append("location", JSON.stringify(location));
-    }
+    formData.append("location", JSON.stringify(location));
     
     if (imageFile) {
       formData.append("image", imageFile);
@@ -126,6 +131,7 @@ export default function DonorAddFood() {
         setImageFile(null);
         setLocation(null);
         setStatus("Food item added successfully.");
+        alert("Food item added successfully.");
       })
       .catch((err) => {
         setError(err?.message || "Failed to add food item");
@@ -145,7 +151,7 @@ export default function DonorAddFood() {
 
           {error && <p className="auth-error">{error}</p>}
           {status && (
-            <p className="donor-section-subtitle" style={{ color: "#2e7d32" }}>
+            <p className="donor-section-subtitle" style={{ color: "#764ba2" }}>
               <strong>{status}</strong>
             </p>
           )}
@@ -158,6 +164,7 @@ export default function DonorAddFood() {
                 placeholder="e.g. Fresh milk 1L"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                required
               />
             </div>
 
@@ -179,6 +186,7 @@ export default function DonorAddFood() {
                     type="datetime-local"
                     value={cookedTime}
                     onChange={(e) => setCookedTime(e.target.value)}
+                    required
                   />
                 </div>
               )}
@@ -191,6 +199,7 @@ export default function DonorAddFood() {
                 type={foodType === "Cooked" ? "datetime-local" : "date"}
                 value={expiryDate}
                 onChange={(e) => setExpiryDate(e.target.value)}
+                required
               />
             </div>
 
@@ -205,6 +214,7 @@ export default function DonorAddFood() {
                   placeholder="Amount"
                   value={quantityValue}
                   onChange={(e) => setQuantityValue(e.target.value)}
+                  required
                 />
                 <select
                   className="donor-select"
@@ -242,6 +252,7 @@ export default function DonorAddFood() {
                 placeholder="Enter address where receiver will collect the food."
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
+                required
               />
             </div>
 
@@ -255,6 +266,11 @@ export default function DonorAddFood() {
               >
                 {isLocating ? "Fetching location…" : "Use my current location"}
               </button>
+              {!location && (
+                <div style={{ color: "#d32f2f", fontSize: "0.85rem", marginTop: "8px", fontWeight: "bold" }}>
+                  * Live Location is strictly mandatory to submit!
+                </div>
+              )}
               {location && (
                 <div className="donor-location-map">
                   <iframe
@@ -268,8 +284,18 @@ export default function DonorAddFood() {
             </div>
           </div>
 
-          <button type="button" className="donor-primary-btn full" onClick={addItem}>
-            Add food item
+          <button 
+            type="button" 
+            className="donor-primary-btn full" 
+            onClick={addItem}
+            disabled={!location}
+            style={{ 
+              opacity: !location ? 0.6 : 1, 
+              cursor: !location ? "not-allowed" : "pointer",
+              background: !location ? "#607d8b" : undefined
+            }}
+          >
+            {(!location) ? "Location Required to Add Food" : "Add food item"}
           </button>
         </div>
       </section>

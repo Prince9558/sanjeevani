@@ -12,9 +12,10 @@ function ReceiverDashboard() {
   const [items, setItems] = useState([]); // Inventory & Reserved
   const [available, setAvailable] = useState([]); // Collect items pool
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
   const [view, setView] = useState(() => sessionStorage.getItem("receiverDashView") || "overview");
   const [filterDate, setFilterDate] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     sessionStorage.setItem("receiverDashView", view);
@@ -111,56 +112,64 @@ function ReceiverDashboard() {
   const reservedCount = items.filter((it) => it.status === "reserved").length;
 
   return (
-    <div className="dash-layout">
-      <aside className="dash-sidebar">
-        <div className="dash-brand">
-          <span className="dot" />
-          <span>Food Value</span>
+    <div className="dash-layout" style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
+      <header className="top-header-nav">
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <h1 style={{ margin: 0, fontSize: "1.5rem", letterSpacing: "0.5px", color: "white", fontWeight: "bold" }}>Sanjeevani</h1>
+        </div>
+        
+        {/* Desktop Navigation */}
+        <div className="desktop-nav-links">
+          <span>Welcome, {user?.role === 'admin' ? "Admin" : (user?.name || user?.email)}!</span>
+          <button className={`desktop-nav-button ${view === "overview" ? "active" : ""}`} onClick={() => setView("overview")}>Overview</button>
+          <button className={`desktop-nav-button ${view === "collect" ? "active" : ""}`} onClick={() => setView("collect")}>Collect Items</button>
+          <button className={`desktop-nav-button ${view === "reserved" ? "active" : ""}`} onClick={() => setView("reserved")}>Reserved Items {reservedCount > 0 && `(${reservedCount})`}</button>
+          <button className={`desktop-nav-button ${view === "inventory" ? "active" : ""}`} onClick={() => setView("inventory")}>My Inventory</button>
+          
+          <ProfilePanel user={user} onLogout={handleLogout} textMode={true} />
         </div>
 
-        <nav className="dash-menu">
-          <button
-            className={`menu-item ${view === "overview" ? "active" : ""}`}
-            onClick={() => setView("overview")}
+        {/* Mobile Navigation (Hamburger 3 Lines) */}
+        <div className="mobile-menu-btn" style={{ position: "relative" }}>
+          <button 
+            className="three-dots-btn"
+            style={{ color: "white" }}
+            onClick={() => setMenuOpen(!menuOpen)}
           >
-            Overview
+            ☰
           </button>
-          <button
-            className={`menu-item ${view === "collect" ? "active" : ""}`}
-            onClick={() => setView("collect")}
-          >
-            Collect Items
-          </button>
-          <button
-            className={`menu-item ${view === "reserved" ? "active" : ""}`}
-            onClick={() => setView("reserved")}
-          >
-            Reserved Items {reservedCount > 0 && `(${reservedCount})`}
-          </button>
-          <button
-            className={`menu-item ${view === "inventory" ? "active" : ""}`}
-            onClick={() => setView("inventory")}
-          >
-            My Inventory
-          </button>
-        </nav>
 
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
-      </aside>
+          {menuOpen && (
+            <div style={{
+              position: "absolute", top: "100%", right: 0, marginTop: "8px", background: "white", borderRadius: "8px", 
+              width: "220px", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", padding: "12px", display: "flex", flexDirection: "column", gap: "4px", zIndex: 1000,
+              border: "1px solid #edf0ee"
+            }}>
+              <div style={{ color: "#37474f", fontWeight: "bold", borderBottom: "1px solid #eee", paddingBottom: "10px", marginBottom: "6px", fontSize: "1rem" }}>
+                Welcome, {user?.role === 'admin' ? "Admin" : (user?.name || user?.email)}!
+              </div>
 
-      <main className="dash-main">
-        <header className="dash-header" style={{ alignItems: "flex-start" }}>
-          <div>
-            <h1>Receiver dashboard</h1>
-            <p className="dash-subtitle">
-              Logged in as <strong>{user.email}</strong>. Use this dashboard to
-              browse and collect food.
-            </p>
-          </div>
-          <ProfilePanel user={user} onLogout={handleLogout} />
-        </header>
+              <button onClick={() => { setView("overview"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "overview" ? "#764ba2" : "#546e7a", fontWeight: view === "overview" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Overview</button>
+              <button onClick={() => { setView("collect"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "collect" ? "#764ba2" : "#546e7a", fontWeight: view === "collect" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Collect Items</button>
+              <button onClick={() => { setView("reserved"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "reserved" ? "#764ba2" : "#546e7a", fontWeight: view === "reserved" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Reserved Items {reservedCount > 0 && `(${reservedCount})`}</button>
+              <button onClick={() => { setView("inventory"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "inventory" ? "#764ba2" : "#546e7a", fontWeight: view === "inventory" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>My Inventory</button>
+              
+              <div style={{ borderTop: "1px solid #eee", paddingTop: "12px", marginTop: "6px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                 <ProfilePanel user={user} onLogout={handleLogout} textMode={true} customClass="desktop-nav-button" />
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
+      <main className="dash-main" style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
+        <div style={{ marginBottom: "20px" }}>
+          <h1 style={{ fontSize: "1.6rem", color: "#4a148c", margin: 0, fontWeight: "600" }}>Receiver dashboard</h1>
+          <p className="dash-subtitle" style={{ marginTop: "4px" }}>
+            Logged in as <strong>{user?.role === 'admin' ? "Admin" : (user?.name || user?.email)}</strong>. Use this dashboard to
+            browse and collect food.
+          </p>
+        </div>
 
         {error && (
           <div
@@ -175,7 +184,7 @@ function ReceiverDashboard() {
           {view === "overview" && (
             <div className="dash-card highlight" style={{ gridColumn: "1 / -1" }}>
               <div style={{ marginBottom: "2rem" }}>
-                <h2 style={{ fontSize: "1.4rem", color: "#1b5e20", marginBottom: "0.5rem" }}>
+                <h2 style={{ fontSize: "1.4rem", color: "#4a148c", marginBottom: "0.5rem" }}>
                   About Food Value Platform
                 </h2>
                 <p style={{ lineHeight: "1.6", color: "#455a64" }}>
@@ -190,7 +199,7 @@ function ReceiverDashboard() {
                 </p>
               </div>
               <div>
-                <h2 style={{ fontSize: "1.4rem", color: "#1b5e20", marginBottom: "0.5rem" }}>
+                <h2 style={{ fontSize: "1.4rem", color: "#4a148c", marginBottom: "0.5rem" }}>
                   How it works
                 </h2>
                 <ul style={{ lineHeight: "1.6", color: "#455a64", paddingLeft: "1.2rem" }}>
@@ -206,7 +215,7 @@ function ReceiverDashboard() {
           {view === "collect" && (
             <div className="dash-card" style={{ gridColumn: "1 / -1" }}>
               <h2>Available near you</h2>
-              <div style={{ background: "rgba(255,255,255,0.7)", padding: "12px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.1)", marginBottom: "16px", color: "#1b5e20", fontWeight: "bold", textAlign: "center" }}>
+              <div style={{ background: "rgba(255,255,255,0.7)", padding: "12px", borderRadius: "8px", border: "1px solid rgba(0,0,0,0.1)", marginBottom: "16px", color: "#4a148c", fontWeight: "bold", textAlign: "center" }}>
                 Please scan the QR code to verify the details before collecting the food.
               </div>
               {loading ? (
@@ -405,8 +414,8 @@ function ReceiverDashboard() {
                               display: "inline-block",
                               padding: "4px 8px",
                               borderRadius: 12,
-                              background: view === "reserved" ? "#fff3e0" : "#e8f5e9",
-                              color: view === "reserved" ? "#e65100" : "#2e7d32",
+                              background: view === "reserved" ? "#fff3e0" : "#f3e5f5",
+                              color: view === "reserved" ? "#e65100" : "#764ba2",
                               fontSize: "0.85rem",
                               fontWeight: 500,
                               alignSelf: "flex-start",
@@ -452,24 +461,24 @@ function ReceiverDashboard() {
                                 fontSize: "0.9rem", 
                                 fontWeight: "bold",
                                 borderRadius: "8px", 
-                                background: "linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)",
+                                background: (it.feedbackGiven || localStorage.getItem('feedbackGiven_' + it._id)) ? "#d32f2f" : "linear-gradient(135deg, #4a148c 0%, #764ba2 100%)",
                                 border: "none",
                                 color: "#fff",
                                 cursor: "pointer",
                                 transition: "all 0.2s",
-                                boxShadow: "0 4px 12px rgba(27, 94, 32, 0.2)"
+                                boxShadow: "0 4px 12px rgba(74, 20, 140, 0.2)"
                               }}
                               onMouseOver={(e) => { e.currentTarget.style.transform = "scale(1.02)"; }}
                               onMouseOut={(e) => { e.currentTarget.style.transform = "scale(1)"; }}
                               onClick={() => {
                                 if (it.feedbackGiven || localStorage.getItem('feedbackGiven_' + it._id)) {
-                                  alert("You have already submitted your feedback. Only one submission is allowed.");
+                                  alert("You have already provided feedback for this item.");
                                 } else {
                                   window.open(`/feedback?to=${it.donor?.email || ''}&foodId=${it._id}`, '_blank');
                                 }
                               }}
                             >
-                              Give Feedback
+                              {(it.feedbackGiven || localStorage.getItem('feedbackGiven_' + it._id)) ? "Feedback Shared" : "Give Feedback"}
                             </button>
                           </div>
                         )}

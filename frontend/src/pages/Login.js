@@ -287,7 +287,7 @@ function Login() {
                 </button>
                 <div style={{ marginTop: "12px", fontSize: "14px", color: "#555", textAlign: "right", width: "100%" }}>
                   {timer > 0 ? (
-                    <span>Resend OTP in <strong style={{ color: "#2e7d32" }}>{timer}s</strong></span>
+                    <span>Resend OTP in <strong style={{ color: "#764ba2" }}>{timer}s</strong></span>
                   ) : (
                     <span>
                       Didn't receive code?{" "}

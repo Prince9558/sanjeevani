@@ -68,7 +68,7 @@ export default function DonorInventory() {
                   <div className="donor-item-main" style={{ justifyContent: "center" }}>
                     <div className="donor-item-name" style={{ fontSize: "1.1rem" }}>{it.name}</div>
                     <div className="donor-item-meta" style={{ marginTop: "6px" }}>
-                      Collected At: <span style={{ fontWeight: 600, color: "#1b5e20" }}>{it.collectedAt ? new Date(it.collectedAt).toLocaleDateString() : "-"}</span>
+                      Collected At: <span style={{ fontWeight: 600, color: "#4a148c" }}>{it.collectedAt ? new Date(it.collectedAt).toLocaleDateString() : "-"}</span>
                     </div>
                     <div className="donor-item-meta" style={{ color: "#1976d2", marginTop: "4px" }}>
                       Click to view full details →

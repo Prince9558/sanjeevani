@@ -24,8 +24,13 @@ function AdminDashboard() {
   const [reportType, setReportType] = useState("all");
   const [reportPage, setReportPage] = useState(1);
   const [reportItemsPerPage, setReportItemsPerPage] = useState(10);
+  
+  const [userView, setUserView] = useState("donors");
+  const [userPage, setUserPage] = useState(1);
+  const [userItemsPerPage, setUserItemsPerPage] = useState(10);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     setReportPage(1);
@@ -38,6 +43,32 @@ function AdminDashboard() {
   const handleLogout = () => {
     logout();
     navigate("/");
+  };
+
+  const handleDeleteFood = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this food item?")) return;
+    try {
+      await apiRequest(`/api/admin/food/${id}`, { method: "DELETE", token });
+      setAllStock((prev) => prev.filter((item) => item._id !== id));
+      alert("Food item deleted successfully.");
+    } catch (err) {
+      alert(err?.message || "Failed to delete food item");
+    }
+  };
+
+  const handleToggleBlock = async (id, currentStatus) => {
+    if (!window.confirm(`Are you sure you want to ${currentStatus ? "unblock" : "block"} this user?`)) return;
+    try {
+      await apiRequest(`/api/admin/user/${id}/toggle-block`, { method: "PUT", token });
+      
+      const toggleFn = (prev) => prev.map(u => u._id === id ? { ...u, isBlocked: !u.isBlocked } : u);
+      setDonors(toggleFn);
+      setReceivers(toggleFn);
+      
+      alert(`User ${currentStatus ? "unblocked" : "blocked"} successfully.`);
+    } catch (err) {
+      alert(err?.message || "Failed to toggle block status");
+    }
   };
 
   useEffect(() => {
@@ -159,7 +190,7 @@ function AdminDashboard() {
         if (!reportDate || (d && d.toISOString().slice(0, 10) === reportDate)) {
           rows.push({
             type: "Delivered",
-            color: "#2e7d32", bg: "#e8f5e9",
+            color: "#764ba2", bg: "#f3e5f5",
             name: item.foodId?.name || "Deleted Item",
             donor: item.donorId?.email || "Unknown",
             receiver: item.receiverId?.email || "Unknown",
@@ -200,53 +231,80 @@ function AdminDashboard() {
     return false;
   });
 
+  const displayUsers = useMemo(() => {
+    let list = [];
+    if (userView === "donors") list = donors.filter(u => !u.isBlocked);
+    else if (userView === "receivers") list = receivers.filter(u => !u.isBlocked);
+    else list = [...donors, ...receivers].filter(u => u.isBlocked);
+    return list;
+  }, [donors, receivers, userView]);
+
+  const userTotalItems = displayUsers.length;
+  const userTotalPages = Math.ceil(userTotalItems / userItemsPerPage) || 1;
+  const userStartIdx = (userPage - 1) * userItemsPerPage;
+  const currentUserRows = displayUsers.slice(userStartIdx, userStartIdx + userItemsPerPage);
+
   if (!user || user.role !== "admin") return null;
 
   return (
-    <div className="dash-layout">
-      <aside className="dash-sidebar">
-        <div className="dash-brand">
-          <span className="dot" />
-          <span>Food Value</span>
+    <div className="dash-layout" style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
+      <header className="top-header-nav">
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <h1 style={{ margin: 0, fontSize: "1.5rem", letterSpacing: "0.5px", color: "white", fontWeight: "bold" }}>Sanjeevani</h1>
+        </div>
+        
+        {/* Desktop Navigation */}
+        <div className="desktop-nav-links">
+          <span>Welcome, {user?.role === 'admin' ? "Admin" : (user?.name || user?.email)}!</span>
+          <button className={`desktop-nav-button ${view === "overview" ? "active" : ""}`} onClick={() => setView("overview")}>Admin overview</button>
+          <button className={`desktop-nav-button ${view === "stock" ? "active" : ""}`} onClick={() => setView("stock")}>Stock items</button>
+          <button className={`desktop-nav-button ${view === "reports" ? "active" : ""}`} onClick={() => setView("reports")}>Reports & Logs</button>
+          <button className={`desktop-nav-button ${view === "users" ? "active" : ""}`} onClick={() => setView("users")}>Users management</button>
+          
+          <ProfilePanel user={user} onLogout={handleLogout} textMode={true} />
         </div>
 
-        <nav className="dash-menu">
-          <button
-            className={`menu-item ${view === "overview" ? "active" : ""}`}
-            onClick={() => setView("overview")}
+        {/* Mobile Navigation (Hamburger 3 Lines) */}
+        <div className="mobile-menu-btn" style={{ position: "relative" }}>
+          <button 
+            className="three-dots-btn"
+            style={{ color: "white" }}
+            onClick={() => setMenuOpen(!menuOpen)}
           >
-            Admin overview
+            ☰
           </button>
 
-          <button
-            className={`menu-item ${view === "stock" ? "active" : ""}`}
-            onClick={() => setView("stock")}
-          >
-            Stock items
-          </button>
-          <button
-            className={`menu-item ${view === "reports" ? "active" : ""}`}
-            onClick={() => setView("reports")}
-          >
-            Reports & Logs
-          </button>
-        </nav>
+          {menuOpen && (
+            <div style={{
+              position: "absolute", top: "100%", right: 0, marginTop: "8px", background: "white", borderRadius: "8px", 
+              width: "220px", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", padding: "12px", display: "flex", flexDirection: "column", gap: "4px", zIndex: 1000,
+              border: "1px solid #edf0ee"
+            }}>
+              <div style={{ color: "#37474f", fontWeight: "bold", borderBottom: "1px solid #eee", paddingBottom: "10px", marginBottom: "6px", fontSize: "1rem" }}>
+                Welcome, {user?.role === 'admin' ? "Admin" : (user?.name || user?.email)}!
+              </div>
 
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
-      </aside>
+              <button onClick={() => { setView("overview"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "overview" ? "#764ba2" : "#546e7a", fontWeight: view === "overview" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Admin overview</button>
+              <button onClick={() => { setView("stock"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "stock" ? "#764ba2" : "#546e7a", fontWeight: view === "stock" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Stock items</button>
+              <button onClick={() => { setView("reports"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "reports" ? "#764ba2" : "#546e7a", fontWeight: view === "reports" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Reports & Logs</button>
+              <button onClick={() => { setView("users"); setMenuOpen(false); }} style={{ textAlign: "left", background: "none", border: "none", color: view === "users" ? "#764ba2" : "#546e7a", fontWeight: view === "users" ? "bold" : "500", cursor: "pointer", padding: "10px 8px", fontSize: "0.95rem", borderRadius: "6px" }}>Users management</button>
+              
+              <div style={{ borderTop: "1px solid #eee", paddingTop: "12px", marginTop: "6px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                 <ProfilePanel user={user} onLogout={handleLogout} textMode={true} customClass="desktop-nav-button" />
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
 
-      <main className="dash-main">
-        <header className="dash-header" style={{ alignItems: "flex-start" }}>
-          <div>
-            <h1>Admin dashboard</h1>
-            <p className="dash-subtitle">
-              Monitor donors, receivers and donation flow across the platform.
-            </p>
-          </div>
-          <ProfilePanel user={user} onLogout={handleLogout} />
-        </header>
+      <main className="dash-main" style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
+        <div style={{ marginBottom: "20px" }}>
+          <h1 style={{ fontSize: "1.6rem", color: "#4a148c", margin: 0, fontWeight: "600" }}>Admin dashboard</h1>
+          <p className="dash-subtitle" style={{ marginTop: "4px" }}>
+            Monitor donors, receivers and donation flow across the platform.
+          </p>
+        </div>
+
 
         {error && (
           <div
@@ -294,12 +352,12 @@ function AdminDashboard() {
 
             {view === "overview" && (
               <div className="dash-card" style={{ gridColumn: "1 / -1" }}>
-                <h2 style={{ fontSize: "1.4rem", color: "#1b5e20", marginBottom: "0.5rem" }}>Our Mission at Food Value Platform</h2>
+                <h2 style={{ fontSize: "1.4rem", color: "#4a148c", marginBottom: "0.5rem" }}>Our Mission at Food Value Platform</h2>
                 <p style={{ lineHeight: "1.6", color: "#455a64" }}>
                   Food Value reduces waste by safely matching surplus food with active receivers in the community.
                   Donors add items with pickup details. Receivers reserve items and collect using a seamless OTP verification process.
                 </p>
-                <div style={{ marginTop: "1rem", padding: "1rem", background: "#e8f5e9", borderRadius: "8px", borderLeft: "4px solid #4caf50" }}>
+                <div style={{ marginTop: "1rem", padding: "1rem", background: "#f3e5f5", borderRadius: "8px", borderLeft: "4px solid #667eea" }}>
                   <strong>Admin Responsibility:</strong> You oversee the health of the entire donation lifecycle to ensure zero-waste and rapid distributions. Use the side tabs and quick action chips to monitor pending inventory versus successful collections.
                 </div>
               </div>
@@ -409,6 +467,21 @@ function AdminDashboard() {
                               "-"}
                           </div>
                           <div className="dash-subtitle">Status: {it.status}</div>
+                          <button
+                            onClick={() => handleDeleteFood(it._id)}
+                            style={{
+                              marginTop: 5,
+                              padding: "4px 8px",
+                              backgroundColor: "#d32f2f",
+                              color: "white",
+                              border: "none",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                              fontSize: "0.8rem",
+                            }}
+                          >
+                            Delete
+                          </button>
                         </div>
                       </div>
                       <div className="dash-subtitle" style={{ marginTop: 8 }}>
@@ -540,6 +613,129 @@ function AdminDashboard() {
                         disabled={reportPage === reportTotalPages}
                         style={{ background: "none", border: "none", cursor: reportPage === reportTotalPages ? "default" : "pointer", opacity: reportPage === reportTotalPages ? 0.3 : 1, fontSize: "1rem", color: "#555", padding: 0 }}
                         title="Last Page"
+                      >
+                        &gt;&gt;|
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {view === "users" && (
+              <div className="dash-card" style={{ gridColumn: "1 / -1", padding: "2rem" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+                  <div>
+                    <h2 style={{ fontSize: "1.6rem", margin: 0 }}>Users Management</h2>
+                    <p className="dash-subtitle" style={{ margin: "5px 0 0 0" }}>
+                      Identify and block fake IDs or rule-violating users.
+                    </p>
+                  </div>
+                  <div className="chip-row">
+                     <button className={`chip ${userView === 'donors' ? 'active' : ''}`} onClick={() => { setUserView('donors'); setUserPage(1); }} style={userView==='donors'?{background:'#e0f2f1', borderColor:'#009688', color:'#00796b'}:{}}>Donors</button>
+                     <button className={`chip ${userView === 'receivers' ? 'active' : ''}`} onClick={() => { setUserView('receivers'); setUserPage(1); }} style={userView==='receivers'?{background:'#e3f2fd', borderColor:'#2196f3', color:'#0d47a1'}:{}}>Receivers</button>
+                     <button className={`chip ${userView === 'blocked' ? 'active' : ''}`} onClick={() => { setUserView('blocked'); setUserPage(1); }} style={userView==='blocked'?{background:'#ffebee', borderColor:'#f44336', color:'#c62828'}:{}}>Blocked Users</button>
+                  </div>
+                </div>
+
+                <div style={{ overflowX: "auto" }}>
+                  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.95rem", textAlign: "left" }}>
+                    <thead>
+                      <tr style={{ background: "#f8f9fa", borderBottom: "2px solid #e0e0e0" }}>
+                        <th style={{ padding: "12px 16px", color: "#455a64" }}>Name</th>
+                        <th style={{ padding: "12px 16px", color: "#455a64" }}>Email</th>
+                        <th style={{ padding: "12px 16px", color: "#455a64" }}>Mobile</th>
+                        <th style={{ padding: "12px 16px", color: "#455a64" }}>Role</th>
+                        <th style={{ padding: "12px 16px", color: "#455a64", textAlign: "right" }}>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {userTotalItems === 0 ? (
+                        <tr>
+                          <td colSpan="5" style={{ padding: "2rem", textAlign: "center", color: "#90a4ae" }}>
+                            No users found in this category.
+                          </td>
+                        </tr>
+                      ) : (
+                        currentUserRows.map((u) => (
+                          <tr key={u._id} style={{ borderBottom: "1px solid #eceff1" }}>
+                            <td style={{ padding: "12px 16px", fontWeight: "600", color: "#37474f" }}>{u.name || "N/A"}</td>
+                            <td style={{ padding: "12px 16px", color: "#546e7a" }}>{u.email}</td>
+                            <td style={{ padding: "12px 16px", color: "#546e7a" }}>{u.mobile}</td>
+                            <td style={{ padding: "12px 16px", color: "#607d8b", textTransform: "capitalize" }}>{u.role || (userView.replace("s", ""))}</td>
+                            <td style={{ padding: "12px 16px", textAlign: "right" }}>
+                              <button 
+                                onClick={() => handleToggleBlock(u._id, u.isBlocked)} 
+                                style={{ 
+                                  padding: "6px 12px", 
+                                  background: u.isBlocked ? "#667eea" : "#d32f2f", 
+                                  color: "white", 
+                                  border: "none", 
+                                  borderRadius: "6px", 
+                                  cursor: "pointer", 
+                                  fontSize: "0.8rem",
+                                  fontWeight: "bold"
+                                }}
+                              >
+                                {u.isBlocked ? "Unblock" : "Block User"}
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {userTotalItems > 0 && (
+                  <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", flexWrap: "wrap", gap: "16px", padding: "16px 8px 0px", fontSize: "0.85rem", color: "#555" }}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <span>Items per page:</span>
+                      <select 
+                        value={userItemsPerPage} 
+                        onChange={(e) => {
+                          setUserItemsPerPage(Number(e.target.value));
+                          setUserPage(1);
+                        }}
+                        style={{ marginLeft: "8px", border: "none", outline: "none", background: "transparent", color: "#555", cursor: "pointer", fontSize: "0.85rem", borderBottom: "1px solid #ccc", padding: "2px 0" }}
+                      >
+                        <option value={5}>5</option>
+                        <option value={10}>10</option>
+                        <option value={20}>20</option>
+                        <option value={50}>50</option>
+                      </select>
+                    </div>
+                    
+                    <div style={{ marginRight: "32px" }}>
+                      {userStartIdx + 1} - {Math.min(userStartIdx + userItemsPerPage, userTotalItems)} of {userTotalItems}
+                    </div>
+                    
+                    <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+                      <button 
+                        onClick={() => setUserPage(1)} 
+                        disabled={userPage === 1}
+                        style={{ background: "none", border: "none", cursor: userPage === 1 ? "default" : "pointer", opacity: userPage === 1 ? 0.3 : 1, fontSize: "1rem", color: "#555", padding: 0 }}
+                      >
+                        |&lt;&lt;
+                      </button>
+                      <button 
+                        onClick={() => setUserPage(prev => Math.max(prev - 1, 1))} 
+                        disabled={userPage === 1}
+                        style={{ background: "none", border: "none", cursor: userPage === 1 ? "default" : "pointer", opacity: userPage === 1 ? 0.3 : 1, fontSize: "1rem", color: "#555", padding: 0 }}
+                      >
+                        &lt;
+                      </button>
+                      <button 
+                        onClick={() => setUserPage(prev => Math.min(prev + 1, userTotalPages))} 
+                        disabled={userPage === userTotalPages}
+                        style={{ background: "none", border: "none", cursor: userPage === userTotalPages ? "default" : "pointer", opacity: userPage === userTotalPages ? 0.3 : 1, fontSize: "1rem", color: "#555", padding: 0 }}
+                      >
+                        &gt;
+                      </button>
+                      <button 
+                        onClick={() => setUserPage(userTotalPages)} 
+                        disabled={userPage === userTotalPages}
+                        style={{ background: "none", border: "none", cursor: userPage === userTotalPages ? "default" : "pointer", opacity: userPage === userTotalPages ? 0.3 : 1, fontSize: "1rem", color: "#555", padding: 0 }}
                       >
                         &gt;&gt;|
                       </button>

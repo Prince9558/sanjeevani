@@ -21,6 +21,7 @@ router.post('/register', async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
 
     const user = await User.create({
       name: name || "",
@@ -29,9 +30,19 @@ router.post('/register', async (req, res) => {
       address: address || "",
       password: hashedPassword,
       role: role || "receiver",
+      isVerified: false,
+      verificationToken
     });
 
-    return res.json({ message: "User registered successfully", id: user._id });
+    const verifyLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify/${verificationToken}`;
+    
+    await sendEmail({
+      email,
+      subject: "Verify Your Email - Sanjeevani",
+      message: `Click the following link to verify your email address:<br/><br/><a href="${verifyLink}" style="color: #0066cc; text-decoration: none;">${verifyLink}</a><br/><br/>This is an automated message, please do not reply.`
+    });
+
+    return res.json({ message: "Registration successful. Please check your email to verify your account." });
 
   } catch (err) {
     if (err?.code === 11000) {
@@ -64,6 +75,20 @@ router.post('/login', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found" });
 
+    if (user.isBlocked) {
+      return res.status(403).json({ message: "Your account is blocked by the admin." });
+    }
+
+    if (user.isVerified === false) {
+      if (!user.verificationToken) {
+        // Legacy user who registered before verification system: auto-verify them
+        user.isVerified = true;
+        await user.save();
+      } else {
+        return res.status(400).json({ message: "Please verify your email before logging in. Check your inbox for the verification link." });
+      }
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
@@ -84,6 +109,25 @@ router.post('/login', async (req, res) => {
 
   } catch (err) {
     return res.status(500).json({ message: "Login failed" });
+  }
+});
+
+
+// ================= VERIFY EMAIL =================
+router.post('/verify-email', async (req, res) => {
+  const { token } = req.body;
+  try {
+    const user = await User.findOne({ verificationToken: token });
+    if (!user) return res.status(400).json({ message: "Invalid or expired verification link." });
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    return res.json({ message: "Email successfully verified." });
+  } catch (err) {
+    console.error("Verification Error:", err);
+    return res.status(500).json({ message: "Verification failed" });
   }
 });
 

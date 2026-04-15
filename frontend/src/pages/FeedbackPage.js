@@ -51,23 +51,23 @@ export default function FeedbackPage() {
     <div className="dash-layout" style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
       <div className="dash-card" style={{ width: "90%", maxWidth: "500px", padding: "30px", textAlign: "center" }}>
         
-        <h2 style={{ color: "#1b5e20", marginBottom: "10px", fontSize: "1.8rem" }}>We Value Your Feedback</h2>
+        <h2 style={{ color: "#4a148c", marginBottom: "10px", fontSize: "1.8rem" }}>We Value Your Feedback</h2>
         <p style={{ color: "#455a64", marginBottom: "5px", fontSize: "0.95rem" }}>
           Help us improve Sanjeevani. your feedback will be sent directly to the donor.
         </p>
         {toEmail && (
-          <p style={{ color: "#1b5e20", fontWeight: "bold", fontSize: "0.9rem", marginBottom: "20px" }}>
+          <p style={{ color: "#4a148c", fontWeight: "bold", fontSize: "0.9rem", marginBottom: "20px" }}>
             Sending feedback to: {toEmail}
           </p>
         )}
 
         {status === "success" ? (
-          <div style={{ padding: "20px", background: "rgba(232, 245, 233, 0.7)", borderRadius: "12px", border: "1px solid rgba(200, 230, 201, 0.5)", color: "#1b5e20" }}>
+          <div style={{ padding: "20px", background: "rgba(243, 229, 245, 0.7)", borderRadius: "12px", border: "1px solid rgba(225, 190, 231, 0.5)", color: "#4a148c" }}>
             <h3 style={{ margin: "0 0 10px 0" }}>✅ Submitted Successfully!</h3>
             <p style={{ margin: 0 }}>Check your inbox. A copy of your feedback has been mailed to you.</p>
             <button 
               onClick={() => window.close()} 
-              style={{ marginTop: "20px", background: "#1b5e20", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold" }}>
+              style={{ marginTop: "20px", background: "#4a148c", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold" }}>
               Close Tab
             </button>
           </div>
@@ -97,7 +97,7 @@ export default function FeedbackPage() {
               type="submit" 
               disabled={status === "submitting" || !feedback.trim()}
               style={{
-                background: "#1b5e20",
+                background: "#4a148c",
                 color: "#fff",
                 border: "none",
                 padding: "12px",

@@ -48,7 +48,7 @@ const FoodDetails = () => {
     <div className="home-container" style={{ display: "flex", justifyContent: "center", alignItems: "center", padding: "2rem", minHeight: "100vh" }}>
       <div className="auth-card" style={{ maxWidth: "500px", width: "100%", padding: "2rem", background: "rgba(255, 255, 255, 0.4)", border: "1px solid rgba(255, 255, 255, 0.8)", boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)", backdropFilter: "blur(10px)" }}>
         <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-          <h1 style={{ color: "#2e7d32", fontSize: "2rem", marginBottom: "0.5rem" }}>Food Details</h1>
+          <h1 style={{ color: "#764ba2", fontSize: "2rem", marginBottom: "0.5rem" }}>Food Details</h1>
           <p style={{ color: "#666", fontSize: "0.95rem" }}>Scanned via Sanjeevani QR Code</p>
         </div>
 
@@ -67,7 +67,7 @@ const FoodDetails = () => {
         <div style={{ display: "grid", gap: "1rem" }}>
           <div style={{ background: "#f9fbe7", padding: "1rem", borderRadius: "8px", border: "1px solid #e6ee9c" }}>
             <h3 style={{ margin: 0, color: "#33691e", fontSize: "1.2rem", marginBottom: "0.3rem" }}>{food.name}</h3>
-            <span style={{ display: "inline-block", background: "#388e3c", color: "white", padding: "0.2rem 0.6rem", borderRadius: "12px", fontSize: "0.8rem", fontWeight: "bold" }}>
+            <span style={{ display: "inline-block", background: "#5e35b1", color: "white", padding: "0.2rem 0.6rem", borderRadius: "12px", fontSize: "0.8rem", fontWeight: "bold" }}>
               {food.status.toUpperCase()}
             </span>
           </div>
@@ -99,9 +99,9 @@ const FoodDetails = () => {
           )}
 
           {food.foodType === "Uncooked" && (
-            <div style={{ background: "#e8f5e9", padding: "1rem", borderRadius: "8px", border: "1px solid #c8e6c9" }}>
-              <p style={{ margin: 0, fontSize: "0.8rem", color: "#2e7d32" }}>Food Type</p>
-              <p style={{ margin: 0, fontWeight: "bold", color: "#1b5e20" }}>Packaged / Raw</p>
+            <div style={{ background: "#f3e5f5", padding: "1rem", borderRadius: "8px", border: "1px solid #e1bee7" }}>
+              <p style={{ margin: 0, fontSize: "0.8rem", color: "#764ba2" }}>Food Type</p>
+              <p style={{ margin: 0, fontWeight: "bold", color: "#4a148c" }}>Packaged / Raw</p>
             </div>
           )}
 

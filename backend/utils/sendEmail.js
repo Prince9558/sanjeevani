@@ -23,7 +23,7 @@ const sendEmail = async (options) => {
       from: `"Sanjeevani" <singhania9558@gmail.com>`,
       to: options.email,
       subject: options.subject,
-      html: `<h2>${options.message}</h2>`,
+      html: `<div style="font-family: Arial, sans-serif; font-size: 16px; color: #333; line-height: 1.5;">${options.message}</div>`,
     };
 
     await transporter.sendMail(mailOptions);

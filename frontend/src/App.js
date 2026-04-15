@@ -12,6 +12,7 @@ import ReceiverDashboard from "./pages/ReceiverDashboard";
 import DonorDashboard from "./pages/DonorDashboard";
 import FoodDetails from "./pages/FoodDetails";
 import FeedbackPage from "./pages/FeedbackPage";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   const [isServerAwake, setIsServerAwake] = useState(false);
@@ -86,6 +87,7 @@ function App() {
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/verify/:token" element={<VerifyEmail />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/donor-dashboard" element={<DonorDashboard />} />
